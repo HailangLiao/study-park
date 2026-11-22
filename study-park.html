@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="学习乐园">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFD966">
+<title>学习乐园 🎈</title>
+<style>
+  :root{
+    --bg:#FFF8E7;          /* 暖米黄 */
+    --card:#FFFFFF;
+    --ink:#4A3B2E;         /* 深棕字 */
+    --sub:#9A8B7C;         /* 灰棕 */
+    --green:#3ECFA0;       /* 青绿主色 */
+    --green-d:#2BA87E;
+    --gold:#FFB84D;        /* 金黄强调 */
+    --gold-d:#F59F2E;
+    --red:#FF7A7A;
+    --blue:#6FB7FF;
+    --radius:22px;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    touch-action:manipulation;
+    min-height:100vh;
+    padding-bottom:110px;
+  }
+  /* ---------- 顶栏 ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:linear-gradient(135deg,#FFD966,#FFB84D);
+    padding:14px 16px 12px;
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+  }
+  .logo{ font-size:26px; }
+  header h1{ margin:0; font-size:20px; flex:1; }
+  .pill{
+    background:#fff; border-radius:999px; padding:6px 12px;
+    font-size:15px; font-weight:700; white-space:nowrap;
+    box-shadow:0 2px 5px rgba(0,0,0,.08);
+  }
+  .pill .num{ color:var(--gold-d); }
+  /* ---------- 主区 ---------- */
+  main{ max-width:760px; margin:0 auto; padding:16px; }
+  section{ margin-bottom:18px; }
+  .card{
+    background:var(--card); border-radius:var(--radius);
+    padding:16px; box-shadow:0 4px 14px rgba(0,0,0,.06);
+  }
+  .sec-title{
+    display:flex; align-items:center; gap:8px;
+    font-size:17px; font-weight:800; margin:0 0 12px;
+  }
+  .sec-title small{ color:var(--sub); font-weight:500; margin-left:auto; font-size:13px; }
+  /* ---------- 欢迎横幅 ---------- */
+  .hero{
+    background:linear-gradient(135deg,#3ECFA0,#6FE3C0);
+    border-radius:var(--radius); padding:18px 18px 16px; color:#fff;
+    display:flex; align-items:center; gap:14px;
+    box-shadow:0 6px 18px rgba(62,207,160,.35);
+  }
+  .hero .mascot{ font-size:52px; line-height:1; filter:drop-shadow(0 3px 4px rgba(0,0,0,.2)); }
+  .hero .hello{ font-size:22px; font-weight:800; margin:0 0 4px; }
+  .hero .sub{ font-size:14px; opacity:.95; margin:0; line-height:1.5; }
+  /* ---------- 游戏卡片 ---------- */
+  .games{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .game{
+    background:var(--card); border-radius:var(--radius);
+    padding:16px 10px; text-align:center; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.07);
+    transition:transform .15s ease, box-shadow .15s ease;
+    border:none; display:block; text-decoration:none; color:var(--ink);
+  }
+  .game:active{ transform:scale(.95); }
+  .game .ico{ font-size:44px; display:block; margin-bottom:8px; }
+  .game .name{ font-size:16px; font-weight:800; }
+  .game .tag{
+    display:inline-block; margin-top:6px; font-size:12px; font-weight:700;
+    color:#fff; border-radius:999px; padding:3px 10px;
+  }
+  .g-cc .ico{ filter:drop-shadow(0 3px 4px rgba(255,184,77,.6)); }
+  .g-cc .tag{ background:var(--gold); }
+  .g-math .ico{ filter:drop-shadow(0 3px 4px rgba(62,207,160,.6)); }
+  .g-math .tag{ background:var(--green); }
+  .g-eng .ico{ filter:drop-shadow(0 3px 4px rgba(111,183,255,.7)); }
+  .g-eng .tag{ background:var(--blue); }
+  /* ---------- 任务区 ---------- */
+  .task{
+    display:flex; align-items:center; gap:12px;
+    background:#fff; border-radius:16px; padding:12px 14px; margin-bottom:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
+  }
+  .task .te{ font-size:30px; flex:0 0 auto; }
+  .task .tt{ flex:1; font-size:16px; font-weight:700; line-height:1.4; }
+  .task .done-btn{
+    flex:0 0 auto; width:52px; height:52px; border-radius:50%;
+    border:3px solid #E8E0D0; background:#FDFAF3;
+    font-size:24px; color:#C9C0B0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s ease;
+  }
+  .task.done .done-btn{
+    background:var(--green); border-color:var(--green-d); color:#fff;
+    box-shadow:0 3px 10px rgba(62,207,160,.5);
+  }
+  .task.done .tt{ color:var(--sub); text-decoration:line-through; }
+  .task .done-btn:active{ transform:scale(.9); }
+  .all-done{
+    text-align:center; padding:14px; border-radius:16px;
+    background:#EAFBF4; color:var(--green-d); font-weight:800; font-size:17px;
+  }
+  /* ---------- 周打卡 ---------- */
+  .weekbar{ display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+  .day{
+    text-align:center; padding:8px 2px; border-radius:14px;
+    background:#F6EFDF; position:relative;
+  }
+  .day.today{ outline:3px solid var(--gold); }
+  .day .dw{ font-size:13px; font-weight:700; color:var(--sub); }
+  .day .dd{ font-size:17px; font-weight:800; }
+  .day .status{ font-size:18px; margin-top:4px; min-height:22px; }
+  .day .met{ font-size:11px; color:var(--sub); margin-top:2px; }
+  /* ---------- 兑换 ---------- */
+  .star-big{ text-align:center; padding:8px 0 14px; }
+  .star-big .n{ font-size:56px; font-weight:900; color:var(--gold-d); line-height:1; }
+  .star-big .l{ color:var(--sub); font-size:14px; margin-top:6px; }
+  .rewards{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .reward{
+    background:#fff; border-radius:16px; padding:14px 12px; text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
+  }
+  .reward .ri{ font-size:34px; }
+  .reward .rn{ font-weight:800; font-size:15px; margin:6px 0 4px; }
+  .reward .rc{ font-size:13px; color:var(--gold-d); font-weight:800; }
+  .reward .reached .ri{ filter:grayscale(.8); opacity:.55; }
+  .reward.reached .rc{ color:var(--green-d); }
+  .empty-hint{ text-align:center; color:var(--sub); padding:18px 0; }
+  /* ---------- 家长页 ---------- */
+  .parent-field{ margin-bottom:14px; }
+  .parent-field label{ display:block; font-weight:800; font-size:14px; margin-bottom:6px; }
+  .parent-field input[type=text], .parent-field input[type=number], .parent-field textarea{
+    width:100%; border:2px solid #E8E0D0; border-radius:12px;
+    padding:10px 12px; font-size:15px; font-family:inherit; background:#fff;
+  }
+  .task-edit{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .task-edit input{ flex:1; }
+  .task-edit .emoji-in{ width:52px; text-align:center; }
+  .btn{
+    border:none; border-radius:14px; padding:12px 18px; font-size:15px; font-weight:800;
+    cursor:pointer; font-family:inherit;
+  }
+  .btn-green{ background:var(--green); color:#fff; }
+  .btn-gold{ background:var(--gold); color:#fff; }
+  .btn-ghost{ background:#F0E8D8; color:var(--ink); }
+  .btn-red{ background:var(--red); color:#fff; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .log{ background:#F6EFDF; border-radius:12px; padding:10px 12px; font-size:13px; color:var(--sub); margin-bottom:8px; }
+  /* ---------- 底栏导航 ---------- */
+  nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:#fff; border-top:1px solid #F0E8D8;
+    display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 16px rgba(0,0,0,.06);
+  }
+  nav button{
+    flex:1; border:none; background:none; font-family:inherit;
+    padding:8px 4px; border-radius:14px; cursor:pointer; color:var(--sub);
+    font-size:13px; font-weight:700; display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  nav button .ni{ font-size:22px; }
+  nav button.active{ color:var(--green-d); background:#EAFBF4; }
+  /* ---------- 弹窗 ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100;
+    display:none; align-items:center; justify-content:center; padding:24px;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:#fff; border-radius:24px; padding:22px; max-width:420px; width:100%;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .modal h3{ margin:0 0 10px; font-size:19px; }
+  .modal p{ margin:0 0 14px; color:var(--sub); font-size:14px; line-height:1.6; }
+  .modal .row{ justify-content:flex-end; }
+  .pwd-input{
+    width:100%; border:2px solid #E8E0D0; border-radius:12px;
+    padding:12px; font-size:18px; text-align:center; letter-spacing:6px;
+    margin-bottom:14px;
+  }
+  .bk-text{
+    width:100%; border:2px solid #E8E0D0; border-radius:12px;
+    padding:12px; font-size:13px; font-family:Menlo,Consolas,monospace;
+    margin-bottom:12px; resize:vertical; background:#FDFAF3;
+  }
+  /* ---------- 飞星动画 ---------- */
+  @keyframes fly{
+    0%{ transform:translateY(0) scale(1); opacity:1; }
+    100%{ transform:translateY(-120px) scale(1.6); opacity:0; }
+  }
+  .fly-star{
+    position:fixed; z-index:200; font-size:34px; pointer-events:none;
+    animation:fly 1s ease-out forwards;
+  }
+  .toast{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:90px; z-index:150;
+    background:rgba(74,59,46,.92); color:#fff; border-radius:999px;
+    padding:10px 22px; font-size:15px; font-weight:700;
+    box-shadow:0 6px 20px rgba(0,0,0,.3);
+    opacity:0; pointer-events:none; transition:opacity .3s;
+    max-width:90vw; text-align:center;
+  }
+  .toast.show{ opacity:1; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🎈</span>
+  <h1>学习乐园</h1>
+  <div class="pill">⭐ <span class="num" id="hdrStars">0</span></div>
+  <div class="pill">🎯 <span class="num" id="hdrMin">45</span>分</div>
+</header>
+
+<main>
+  <!-- 首页 -->
+  <section id="pageHome">
+    <div class="hero">
+      <div class="mascot" id="mascotToday">🦊</div>
+      <div>
+        <p class="hello" id="greetLine">今天也要加油呀！</p>
+        <p class="sub" id="dateLine">11月22日 周日</p>
+      </div>
+    </div>
+
+    <section>
+      <h2 class="sec-title">🎮 去玩吧 <small>学完按左上角返回</small></h2>
+      <div class="games">
+        <a class="game g-cc" data-warn="聪聪学堂" href="https://d3nmsqi4n72idj.cloudfront.net/" target="_blank" rel="noopener">
+          <span class="ico">📚</span>
+          <span class="name">聪聪学堂</span>
+          <span class="tag">语文·数学·英语</span>
+        </a>
+        <a class="game g-math" data-warn="数学对战" href="https://agoni152.github.io/-Little-Star-Smart-Math-/" target="_blank" rel="noopener">
+          <span class="ico">⚔️</span>
+          <span class="name">数学对战</span>
+          <span class="tag">口算 PK 60秒</span>
+        </a>
+        <a class="game g-eng" data-warn="英语魔法" href="https://xckevin.github.io/magic-english-buddy/" target="_blank" rel="noopener">
+          <span class="ico">🐉</span>
+          <span class="name">英语魔法</span>
+          <span class="tag">养 Buddy 闯关</span>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="sec-title">✅ 今日任务 <small id="taskMeta"></small></h2>
+      <div id="taskList"></div>
+      <div id="allDone" class="all-done hidden">🎉 今天的任务全部完成啦！记得休息眼睛哦～</div>
+    </section>
+
+    <section>
+      <h2 class="sec-title">📅 本周打卡</h2>
+      <div class="weekbar" id="weekBar"></div>
+    </section>
+  </section>
+
+  <!-- 兑换页 -->
+  <section id="pageReward" class="hidden">
+    <div class="card">
+      <div class="star-big">
+        <div class="n"><span id="bigStars">0</span> ⭐</div>
+        <div class="l">完成任务攒星星，兑换想要的奖励（找爸爸妈妈帮忙）</div>
+      </div>
+      <h2 class="sec-title">🎁 奖励箱</h2>
+      <div class="rewards" id="rewardList"></div>
+    </div>
+  </section>
+
+  <!-- 家长页 -->
+  <section id="pageParent" class="hidden">
+    <div class="card">
+      <h2 class="sec-title">🔧 家长设置</h2>
+      <p style="color:var(--sub);font-size:13px;margin:-4px 0 14px;">修改后会自动保存。备份请点"导出数据"。</p>
+
+      <div class="parent-field">
+        <label>📝 每日任务（最多 5 个）</label>
+        <div id="taskEditList"></div>
+        <button class="btn btn-ghost" id="addTaskBtn" style="width:100%;margin-top:6px;">＋ 添加任务</button>
+      </div>
+
+      <div class="parent-field">
+        <label>🎁 奖励清单（名称 + 所需星星）</label>
+        <div id="rewardEditList"></div>
+        <button class="btn btn-ghost" id="addRewardBtn" style="width:100%;margin-top:6px;">＋ 添加奖励</button>
+      </div>
+
+      <div class="row" style="margin-bottom:14px;">
+        <div class="parent-field" style="flex:1;">
+          <label>⏱ 每日目标（分钟）</label>
+          <input type="number" id="dailyMinInput" min="10" max="120">
+        </div>
+        <div class="parent-field" style="flex:1;">
+          <label>🔊 音效</label>
+          <select id="soundSel" style="width:100%;border:2px solid #E8E0D0;border-radius:12px;padding:10px;font-family:inherit;font-size:15px;background:#fff;">
+            <option value="1">开</option>
+            <option value="0">关</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="parent-field">
+        <label>🏆 发放奖励（扣星星并记一笔）</label>
+        <div id="grantList"></div>
+      </div>
+
+      <div class="parent-field">
+        <label>📒 兑换记录</label>
+        <div id="grantLog"></div>
+      </div>
+
+      <div class="row">
+        <button class="btn btn-gold" id="exportBtn" style="flex:1;">💾 导出数据</button>
+        <button class="btn btn-gold" id="importBtn" style="flex:1;">📥 导入数据</button>
+      </div>
+      <div style="height:10px;"></div>
+      <button class="btn btn-red" id="resetBtn" style="width:100%;">🗑 重置所有数据</button>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button data-page="home" class="active"><span class="ni">🏠</span>首页</button>
+  <button data-page="reward"><span class="ni">⭐</span>星星兑换</button>
+  <button data-page="parent"><span class="ni">🔧</span>家长</button>
+</nav>
+
+<!-- 密码弹窗 -->
+<div class="overlay" id="pwdOverlay">
+  <div class="modal">
+    <h3>🔒 家长验证</h3>
+    <p>请输入家长密码（默认 <b>1234</b>，在代码里可修改）</p>
+    <input type="password" class="pwd-input" id="pwdInput" inputmode="numeric" placeholder="••••">
+    <div class="row">
+      <button class="btn btn-ghost" id="pwdCancel">取消</button>
+      <button class="btn btn-green" id="pwdOk">进入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal">
+    <h3 id="cfTitle">确认</h3>
+    <p id="cfMsg"></p>
+    <div class="row">
+      <button class="btn btn-ghost" id="cfCancel">取消</button>
+      <button class="btn btn-green" id="cfOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 备份弹窗（导出/导入） -->
+<div class="overlay" id="backupOverlay">
+  <div class="modal">
+    <h3 id="bkTitle">💾 备份数据</h3>
+    <p>复制下面的备份内容，存到备忘录或电脑里。想恢复时，把内容粘贴回来点"导入"。</p>
+    <textarea id="bkText" class="bk-text" rows="6" placeholder="备份内容会显示在这里，也可以把要恢复的内容粘贴到这里"></textarea>
+    <div class="row">
+      <button class="btn btn-ghost" id="bkClose">关闭</button>
+      <button class="btn btn-gold" id="bkImport" style="display:none;">📥 导入</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  /* ============ 常量和默认配置 ============ */
+  var PASSWORD = '1234';   // ← 家长密码，可按自己喜好改
+
+  var DEFAULT_TASKS = [
+    { e:'📚', t:'聪聪学堂：语文或数学闯 1 关' },
+    { e:'⚔️', t:'数学对战：和家长/机器人 PK 2 局' },
+    { e:'🐉', t:'英语魔法：读 1 课 + 喂 Buddy' }
+  ];
+  var DEFAULT_REWARDS = [
+    { e:'🧸', n:'周末公园 / 游乐场', c:10 },
+    { e:'🎬', n:'看一部喜欢的动画片', c:8 },
+    { e:'🍦', n:'甜品 / 零食小奖励', c:6 },
+    { e:'🕹', n:'多玩 15 分钟游戏', c:5 }
+  ];
+  var CURR_NS = null;
+
+  /* ============ 数据存取 ============ */
+  function load(){
+    try{
+      var s = localStorage.getItem('studyPark.v1');
+      if(!s) return fresh();
+      var d = JSON.parse(s);
+      if(!d || typeof d !== 'object') return fresh();
+      return d;
+    }catch(e){ return fresh(); }
+  }
+  function fresh(){
+    return {
+      stars:0,
+      tasks:DEFAULT_TASKS.slice(),
+      rewards:DEFAULT_REWARDS.slice(),
+      dailyMin:45,
+      sound:1,
+      days:{},       // "YYYY-Www" -> { "MM-DD": [true,false,false] }
+      logs:[]        // {at,name,cost}
+    };
+  }
+  var data = load();
+  function save(){ localStorage.setItem('studyPark.v1', JSON.stringify(data)); }
+
+  /* ============ 日期工具 ============ */
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+  function todayStr(){ var d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function weekKey(d){
+    var t = new Date(d); t.setHours(0,0,0,0);
+    var day = (t.getDay()+6)%7;             // 周一起始
+    t.setDate(t.getDate()-day);
+    var thursday = new Date(t); thursday.setDate(t.getDate()+3);
+    var iso = thursday.getFullYear();
+    var week1 = new Date(iso,0,4);
+    var w = 1 + Math.round(((thursday - week1)/86400000 - 3 + ((week1.getDay()+6)%7)) / 7);
+    return iso+'-W'+(w<10?'0'+w:w);
+  }
+  var now = new Date();
+  var wk = weekKey(now);
+  var today = todayStr();
+  function dayListFor(week){
+    // 返回该周周一~周日的 Date 数组
+    var t = new Date(now); t.setHours(0,0,0,0);
+    var day = (t.getDay()+6)%7;
+    t.setDate(t.getDate()-day);
+    // 若请求别的周则从周一偏移
+    if(week !== wk){
+      var w1 = weekKey(t);
+      var diff = Math.round((parseInt(week.split('W')[1]) - parseInt(w1.split('W')[1]))*7);
+      t.setDate(t.getDate()+diff);
+    }
+    var arr=[]; for(var i=0;i<7;i++){ var d=new Date(t); d.setDate(t.getDate()+i); arr.push(d); }
+    return arr;
+  }
+
+  /* ============ 星星与音效 ============ */
+  function addStars(n, why){
+    data.stars += n;
+    save();
+    if(why) addLog('⭐ 自动获得 '+n+' 星 — '+why);
+    refreshStars();
+  }
+  function playDone(){
+    if(!data.sound) return;
+    try{
+      var c = new (window.AudioContext||window.webkitAudioContext)();
+      var o = c.createOscillator(), g = c.createGain();
+      o.type='sine'; o.frequency.value=880;
+      g.gain.setValueAtTime(0.25, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+0.4);
+      o.connect(g); g.connect(c.destination);
+      o.start(); o.stop(c.currentTime+0.45);
+      setTimeout(function(){ c.close(); }, 600);
+    }catch(e){}
+  }
+  function flyStar(){
+    var el = document.createElement('div');
+    el.className='fly-star'; el.textContent='⭐';
+    el.style.left = (Math.random()*60+20)+'vw';
+    el.style.top  = (Math.random()*30+15)+'vh';
+    document.body.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 1100);
+  }
+  var toastTimer=null;
+  function toast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  /* ============ 顶栏/星星刷新 ============ */
+  function refreshStars(){
+    var a=document.getElementById('hdrStars'), b=document.getElementById('bigStars');
+    a.textContent=data.stars; b.textContent=data.stars;
+  }
+  function refreshHeaderMin(){
+    document.getElementById('hdrMin').textContent=data.dailyMin;
+  }
+
+  /* ============ 首页 ============ */
+  function greet(){
+    var h=now.getHours();
+    var g=document.getElementById('greetLine');
+    if(h<11) g.textContent='早上好！今天也要加油呀';
+    else if(h<14) g.textContent='中午好！吃完午饭休息一下';
+    else if(h<18) g.textContent='下午好！一起玩一会儿吧';
+    else g.textContent='晚上好！完成今天的探险吧';
+    document.getElementById('dateLine').textContent =
+      (now.getMonth()+1)+'月'+now.getDate()+'日 '+
+      ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+    var mascots=['🦊','🐼','🐯','🦁','🐰','🐻','🐨','🦄'];
+    document.getElementById('mascotToday').textContent = mascots[now.getDay()];
+  }
+  function renderTasks(){
+    var list=document.getElementById('taskList');
+    list.innerHTML='';
+    var todayDone = (data.days[wk] && data.days[wk][today]) || [];
+    var n=0;
+    data.tasks.forEach(function(t, i){
+      var isDone = !!todayDone[i];
+      if(isDone) n++;
+      var div=document.createElement('div');
+      div.className='task'+(isDone?' done':'');
+      div.innerHTML =
+        '<span class="te">'+t.e+'</span>'+
+        '<span class="tt">'+esc(t.t)+'</span>'+
+        '<button class="done-btn" data-i="'+i+'">'+(isDone?'✔':'')+'</button>';
+      list.appendChild(div);
+    });
+    document.getElementById('taskMeta').textContent = (data.tasks.length?'已完成 '+n+'/'+data.tasks.length:'');
+    var all=document.getElementById('allDone');
+    if(data.tasks.length && n===data.tasks.length){ all.classList.remove('hidden'); }
+    else { all.classList.add('hidden'); }
+  }
+  function onTaskTap(e){
+    var btn=e.target.closest('.done-btn'); if(!btn) return;
+    var i=+btn.dataset.i;
+    var todayDone = data.days[wk] && data.days[wk][today];
+    var done = todayDone && todayDone[i];
+    if(done){ toast('今天这关已经完成啦 ⭐'); return; }
+    if(!data.days[wk]) data.days[wk]={};
+    if(!data.days[wk][today]) data.days[wk][today]=[];
+    data.days[wk][today][i]=true;
+    save();
+    playDone(); flyStar();
+    addStars(1, '完成「'+data.tasks[i].t+'」');
+    // 全完成奖励
+    var arr=data.days[wk][today], cnt=0;
+    for(var k=0;k<data.tasks.length;k++) if(arr[k]) cnt++;
+    if(cnt===data.tasks.length) setTimeout(function(){ addStars(1,'今日全部任务完成 +1'); toast('🏆 全部完成！额外奖励 1 颗星'); }, 300);
+    toast('太棒了！+1 ⭐');
+    renderTasks(); renderWeek();
+  }
+  function renderWeek(){
+    var bar=document.getElementById('weekBar'); bar.innerHTML='';
+    var days=dayListFor(wk);
+    days.forEach(function(d){
+      var key=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+      var arr=data.days[wk] && data.days[wk][key];
+      var cnt=arr?arr.filter(Boolean).length:0;
+      var isT = key===today;
+      var cell=document.createElement('div');
+      cell.className='day'+(isT?' today':'');
+      var label=cnt>=data.tasks.length && data.tasks.length>0 ? '🏆' : (cnt>0?('⭐'+cnt):'·');
+      cell.innerHTML =
+        '<div class="dw">'+['一','二','三','四','五','六','日'][(d.getDay()+6)%7]+'</div>'+
+        '<div class="dd">'+d.getDate()+'</div>'+
+        '<div class="status">'+label+'</div>'+
+        '<div class="met">'+(data.tasks.length?(cnt+'/'+data.tasks.length):'')+'</div>';
+      bar.appendChild(cell);
+    });
+  }
+
+  /* ============ 兑换页 ============ */
+  function renderRewards(){
+    var list=document.getElementById('rewardList'); list.innerHTML='';
+    if(!data.rewards.length){ list.innerHTML='<div class="empty-hint">在家长设置里添加奖励吧～</div>'; return; }
+    data.rewards.forEach(function(r){
+      var reached=data.stars>=r.c;
+      var div=document.createElement('div');
+      div.className='reward'+(reached?' reached':'');
+      div.innerHTML='<div class="ri">'+r.e+'</div><div class="rn">'+esc(r.n)+'</div><div class="rc">'+(reached?'🎉 可以兑换！':'需要 '+r.c+' ⭐')+'</div>';
+      list.appendChild(div);
+    });
+  }
+
+  /* ============ 家长区 ============ */
+  function renderTaskEdits(){
+    var box=document.getElementById('taskEditList'); box.innerHTML='';
+    data.tasks.forEach(function(t,i){
+      var row=document.createElement('div');
+      row.className='task-edit';
+      row.innerHTML=
+        '<input type="text" class="emoji-in" data-k="e" data-i="'+i+'" maxlength="4" value="'+escAttr(t.e)+'">'+
+        '<input type="text" data-k="t" data-i="'+i+'" value="'+escAttr(t.t)+'">'+
+        '<button class="btn btn-red del-task" data-i="'+i+'" style="padding:8px 12px;">✕</button>';
+      box.appendChild(row);
+    });
+  }
+  function renderRewardEdits(){
+    var box=document.getElementById('rewardEditList'); box.innerHTML='';
+    data.rewards.forEach(function(r,i){
+      var row=document.createElement('div');
+      row.className='task-edit';
+      row.innerHTML=
+        '<input type="text" class="emoji-in" data-k="e" data-i="'+i+'" data-set="reward" maxlength="4" value="'+escAttr(r.e)+'">'+
+        '<input type="text" data-k="n" data-i="'+i+'" data-set="reward" value="'+escAttr(r.n)+'">'+
+        '<input type="number" data-k="c" data-i="'+i+'" data-set="reward" style="width:74px;" min="1" value="'+r.c+'">'+
+        '<button class="btn btn-red del-reward" data-i="'+i+'" style="padding:8px 12px;">✕</button>';
+      box.appendChild(row);
+    });
+  }
+  function renderGrantList(){
+    var box=document.getElementById('grantList'); box.innerHTML='';
+    if(!data.rewards.length){ box.innerHTML='<div class="log">还没有奖励，先在上方添加。</div>'; return; }
+    data.rewards.forEach(function(r,i){
+      var b=document.createElement('button');
+      b.className='btn btn-gold'; b.style.cssText='flex:1;white-space:normal;';
+      b.textContent=r.e+' '+r.n+'（'+r.c+'⭐）';
+      b.onclick=function(){ grantReward(r); };
+      box.appendChild(b);
+    });
+  }
+  function renderLog(){
+    var box=document.getElementById('grantLog'); box.innerHTML='';
+    if(!data.logs.length){ box.innerHTML='<div class="log">暂无记录</div>'; return; }
+    data.logs.slice().reverse().slice(0,20).forEach(function(l){
+      var d=document.createElement('div'); d.className='log';
+      d.textContent=(l.at||'')+'  '+(l.name||l.why||'')+(l.cost?('  (-'+l.cost+'⭐)'):'');
+      box.appendChild(d);
+    });
+  }
+  function addLog(text){ data.logs.push({at:new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'), name:text}); }
+  function grantReward(r){
+    if(data.stars < r.c){ toast('星星不够，还差 '+(r.c-data.stars)+' 颗'); return; }
+    showConfirm('🎁 发放奖励', '确定用 '+r.c+' 颗星兑换「'+r.n+'」吗？', function(){
+      data.stars-=r.c;
+      data.logs.push({at:new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'), name:r.n, cost:r.c});
+      save(); refreshStars(); renderRewards(); renderGrantList(); renderLog();
+      toast('兑换成功！');
+      // 放个庆祝彩纸效果
+      for(var i=0;i<5;i++) flyStar();
+    });
+  }
+
+  /* ============ 导航与密码 ============ */
+  var curPage='home';
+  function showPage(p){
+    curPage=p;
+    document.getElementById('pageHome').classList.toggle('hidden', p!=='home');
+    document.getElementById('pageReward').classList.toggle('hidden', p!=='reward');
+    document.getElementById('pageParent').classList.toggle('hidden', p!=='parent');
+    document.querySelectorAll('nav button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.page===p);
+    });
+    if(p==='reward') renderRewards();
+    if(p==='parent'){
+      if(!parentUnlocked){
+        showPwd(); return;
+      }
+      refreshParent();
+    }
+  }
+  var parentUnlocked=false;
+  function showPwd(){
+    document.getElementById('pwdOverlay').classList.add('show');
+    setTimeout(function(){ document.getElementById('pwdInput').focus(); }, 50);
+  }
+  function refreshParent(){
+    document.getElementById('dailyMinInput').value=data.dailyMin;
+    document.getElementById('soundSel').value=data.sound?'1':'0';
+    renderTaskEdits(); renderRewardEdits(); renderGrantList(); renderLog();
+  }
+
+  /* ============ 确认框 ============ */
+  var cfCb=null;
+  function showConfirm(title, msg, cb){
+    document.getElementById('cfTitle').textContent=title;
+    document.getElementById('cfMsg').textContent=msg;
+    document.getElementById('confirmOverlay').classList.add('show');
+    cfCb=cb;
+  }
+  function hideConfirm(){ document.getElementById('confirmOverlay').classList.remove('show'); cfCb=null; }
+
+  /* ============ 备份导入导出 ============ */
+  var bkMode='';
+  function openBackup(mode){
+    bkMode=mode;
+    var ov=document.getElementById('backupOverlay');
+    var text=document.getElementById('bkText');
+    var imp=document.getElementById('bkImport');
+    if(mode==='export'){
+      document.getElementById('bkTitle').textContent='💾 备份数据';
+      text.value=JSON.stringify(data);
+      imp.style.display='none';
+    }else{
+      document.getElementById('bkTitle').textContent='📥 导入数据';
+      text.value='';
+      imp.style.display='inline-block';
+    }
+    document.getElementById('bkClose').textContent='关闭';
+    ov.classList.add('show');
+  }
+  function closeBackup(){ document.getElementById('backupOverlay').classList.remove('show'); }
+  function doImport(){
+    var v=document.getElementById('bkText').value.trim();
+    if(!v){ toast('内容是空的哦'); return; }
+    try{
+      var d=JSON.parse(v);
+      if(typeof d!=='object'||d===null||Array.isArray(d)) throw new Error('bad');
+      data=d; save(); refreshAll();
+      toast('导入成功！');
+      closeBackup();
+    }catch(e){ toast('内容格式不对，请检查'); }
+  }
+  function exportData(){ openBackup('export'); }
+  function importData(){ openBackup('import'); }
+  function resetAll(){
+    showConfirm('🗑 重置数据','确定清空星星、打卡记录和兑换记录吗？（任务和奖励配置保留）',function(){
+      data.stars=0; data.days={}; data.logs=[]; save();
+      refreshAll(); toast('已重置');
+    });
+  }
+
+  /* ============ 全部刷新 ============ */
+  function refreshAll(){
+    refreshStars(); refreshHeaderMin(); greet();
+    renderTasks(); renderWeek(); renderRewards();
+    if(parentUnlocked) refreshParent();
+  }
+
+  /* ============ 小工具 ============ */
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+
+  /* ============ 事件绑定 ============ */
+  document.getElementById('taskList').addEventListener('click', onTaskTap);
+
+  document.querySelectorAll('nav button').forEach(function(b){
+    b.addEventListener('click', function(){ showPage(b.dataset.page); });
+  });
+
+  // 游戏大卡片离开提醒（轻提醒，不拦）
+  document.querySelectorAll('a.game').forEach(function(a){
+    a.addEventListener('click', function(){ playDone(); });
+  });
+
+  // 密码弹窗
+  document.getElementById('pwdOk').addEventListener('click', function(){
+    var v=document.getElementById('pwdInput').value;
+    if(v===PASSWORD){
+      parentUnlocked=true;
+      document.getElementById('pwdOverlay').classList.remove('show');
+      document.getElementById('pwdInput').value='';
+      refreshParent();
+      toast('欢迎，家长 👏');
+    }else{
+      toast('密码不对，再试试');
+      document.getElementById('pwdInput').value='';
+    }
+  });
+  document.getElementById('pwdCancel').addEventListener('click', function(){
+    document.getElementById('pwdOverlay').classList.remove('show');
+    document.getElementById('pwdInput').value='';
+    showPage('home');
+  });
+  document.getElementById('pwdOverlay').addEventListener('click', function(e){
+    if(e.target===this){ this.classList.remove('show'); showPage('home'); }
+  });
+  document.getElementById('pwdInput').addEventListener('keydown', function(e){
+    if(e.key==='Enter') document.getElementById('pwdOk').click();
+  });
+
+  // 确认框
+  document.getElementById('cfOk').addEventListener('click', function(){
+    hideConfirm(); if(cfCb) cfCb();
+  });
+  document.getElementById('cfCancel').addEventListener('click', hideConfirm);
+  document.getElementById('confirmOverlay').addEventListener('click', function(e){
+    if(e.target===this) hideConfirm();
+  });
+
+  // 任务编辑
+  document.getElementById('taskEditList').addEventListener('input', function(e){
+    var el=e.target; var i=+el.dataset.i; if(isNaN(i)) return;
+    data.tasks[i][el.dataset.k]=el.value;
+    save();
+  });
+  document.getElementById('taskEditList').addEventListener('click', function(e){
+    var b=e.target.closest('.del-task'); if(!b) return;
+    var i=+b.dataset.i;
+    if(data.tasks.length<=1){ toast('至少保留 1 个任务'); return; }
+    showConfirm('删除任务','确定删除这个任务吗？',function(){
+      data.tasks.splice(i,1); save(); refreshParent(); renderTasks(); renderWeek();
+    });
+  });
+  document.getElementById('addTaskBtn').addEventListener('click', function(){
+    if(data.tasks.length>=5){ toast('最多 5 个任务'); return; }
+    data.tasks.push({e:'🎯',t:'新任务'});
+    save(); refreshParent(); renderTasks(); renderWeek();
+  });
+
+  // 奖励编辑
+  document.getElementById('rewardEditList').addEventListener('input', function(e){
+    var el=e.target; var i=+el.dataset.i; if(isNaN(i)) return;
+    var r=data.rewards[i];
+    var k=el.dataset.k;
+    r[k]= k==='c' ? parseInt(el.value||'0',10) : el.value;
+    save();
+  });
+  document.getElementById('rewardEditList').addEventListener('click', function(e){
+    var b=e.target.closest('.del-reward'); if(!b) return;
+    var i=+b.dataset.i;
+    showConfirm('删除奖励','确定删除这个奖励吗？',function(){
+      data.rewards.splice(i,1); save(); refreshParent(); renderRewards();
+    });
+  });
+  document.getElementById('addRewardBtn').addEventListener('click', function(){
+    data.rewards.push({e:'🎁',n:'新奖励',c:5});
+    save(); refreshParent(); renderRewards();
+  });
+
+  // 分钟与音效
+  document.getElementById('dailyMinInput').addEventListener('change', function(){
+    var v=parseInt(this.value||'45',10);
+    if(v<5) v=5; if(v>240) v=240;
+    data.dailyMin=v; save(); refreshHeaderMin();
+  });
+  document.getElementById('soundSel').addEventListener('change', function(){
+    data.sound = this.value==='1'?1:0; save();
+    if(data.sound) playDone();
+  });
+
+  // 备份与重置
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importBtn').addEventListener('click', importData);
+  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('bkClose').addEventListener('click', closeBackup);
+  document.getElementById('bkImport').addEventListener('click', doImport);
+  document.getElementById('backupOverlay').addEventListener('click', function(e){
+    if(e.target===this) closeBackup();
+  });
+
+  /* ============ 启动 ============ */
+  refreshAll();
+})();
+</script>
+</body>
+</html>
