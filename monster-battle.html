@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="怪兽大作战">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3ECFA0">
+<title>怪兽大作战 🎮</title>
+<style>
+  :root{
+    --bg:#FFF8E7; --card:#FFFFFF; --ink:#4A3B2E; --sub:#9A8B7C;
+    --green:#3ECFA0; --green-d:#2BA87E; --gold:#FFB84D; --gold-d:#F59F2E;
+    --red:#FF7A7A; --red-d:#E5533D; --blue:#6FB7FF; --purple:#A78BFA;
+    --radius:22px;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink); touch-action:manipulation; min-height:100vh; overflow-x:hidden;
+  }
+  .screen{ display:none; min-height:100vh; flex-direction:column; }
+  .screen.show{ display:flex; }
+
+  /* ---------- 顶部导航 ---------- */
+  header{
+    display:flex; align-items:center; gap:10px; padding:12px 16px;
+    background:linear-gradient(135deg,#FFD966,#FFB84D);
+    box-shadow:0 2px 8px rgba(0,0,0,.08); position:sticky; top:0; z-index:50;
+  }
+  header .back{ background:#fff; border:none; border-radius:999px; font-size:16px; padding:6px 14px; font-weight:800; color:var(--ink); cursor:pointer; }
+  header h1{ margin:0; font-size:19px; flex:1; }
+  .pill{ background:#fff; border-radius:999px; padding:5px 12px; font-size:15px; font-weight:800; white-space:nowrap; }
+  .pill .gold{ color:var(--gold-d); }
+
+  main{ flex:1; display:flex; flex-direction:column; padding:16px; max-width:820px; margin:0 auto; width:100%; }
+
+  /* ---------- 主菜单 ---------- */
+  .menu-hero{ text-align:center; padding:26px 0 8px; }
+  .menu-hero .big{ font-size:64px; line-height:1; }
+  .menu-hero h2{ margin:10px 0 6px; font-size:24px; }
+  .menu-hero p{ color:var(--sub); margin:0 0 4px; font-size:15px; }
+  .mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
+  .mode-card{
+    background:var(--card); border-radius:var(--radius); padding:22px 14px; text-align:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.08); cursor:pointer; transition:transform .15s, box-shadow .15s; border:none;
+  }
+  .mode-card:active{ transform:scale(.95); }
+  .mode-card .mi{ font-size:52px; }
+  .mode-card .mn{ font-size:19px; font-weight:800; margin:8px 0 4px; }
+  .mode-card .md{ font-size:13px; color:var(--sub); line-height:1.5; }
+  .mode-card.battle{ border-top:6px solid var(--red); }
+  .mode-card.fly{ border-top:6px solid var(--blue); }
+  .subj-wrap{ margin-top:20px; text-align:center; }
+  .subj-wrap .label{ font-weight:800; font-size:15px; margin-bottom:10px; }
+  .subj-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .subj-btn{
+    border:3px solid #E8E0D0; background:#fff; border-radius:999px;
+    padding:10px 20px; font-size:16px; font-weight:800; cursor:pointer; color:var(--ink);
+  }
+  .subj-btn.on{ border-color:var(--green); background:#EAFBF4; }
+  .start-btn{
+    margin-top:22px; width:100%; max-width:340px; margin-left:auto; margin-right:auto;
+    background:linear-gradient(135deg,#3ECFA0,#2BA87E); color:#fff; border:none;
+    border-radius:999px; padding:16px; font-size:20px; font-weight:900; cursor:pointer;
+    box-shadow:0 6px 18px rgba(62,207,160,.4); display:block;
+  }
+  .help-box{ margin-top:18px; background:#FFF3DC; border-radius:14px; padding:12px 14px; font-size:13px; color:#8a6d2f; line-height:1.6; }
+
+  /* ---------- 战斗区 ---------- */
+  .battle-head{ display:flex; gap:10px; margin-bottom:12px; }
+  .hp-box{ flex:1; background:#F6EFDF; border-radius:14px; padding:8px 12px; }
+  .hp-label{ font-size:12px; font-weight:800; display:flex; justify-content:space-between; }
+  .hp-track{ height:14px; background:#E8E0D0; border-radius:999px; margin-top:6px; overflow:hidden; position:relative; }
+  .hp-fill{ height:100%; border-radius:999px; transition:width .3s ease; }
+  .hp-fill.player{ background:linear-gradient(90deg,#FF7A7A,#FFB84D); }
+  .hp-fill.monster{ background:linear-gradient(90deg,#A78BFA,#6FB7FF); }
+  .arena{
+    background:linear-gradient(180deg,#EAFBF4,#DFF5EC); border-radius:var(--radius);
+    padding:18px 14px; text-align:center; position:relative; overflow:hidden;
+    box-shadow:inset 0 0 0 3px rgba(62,207,160,.25);
+  }
+  .arena .monster-zone{ min-height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .arena .monster{ font-size:76px; line-height:1; transition:transform .12s; }
+  .arena .monster.hit{ transform:translateX(-10px) rotate(-8deg); }
+  .arena .monster-name{ font-weight:800; margin-top:4px; font-size:16px; }
+  .arena .monster-level{ font-size:12px; color:var(--sub); }
+  .trigger-line{ font-size:13px; color:var(--sub); margin:6px 0 0; }
+  .hot-count{ font-size:12px; font-weight:800; color:var(--gold-d); }
+  /* 玩家小头像 */
+  .player-row{ display:flex; align-items:center; gap:8px; justify-content:center; margin:10px 0; }
+  .player-row .pa{ font-size:34px; }
+
+  /* 题目卡 */
+  .q-card{
+    background:var(--card); border-radius:var(--radius); padding:16px; margin-top:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08); text-align:center;
+  }
+  .q-subj{ font-size:12px; font-weight:800; color:var(--sub); }
+  .q-text{ font-size:26px; font-weight:900; margin:10px 0 14px; min-height:44px; line-height:1.3; }
+  .q-options{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .q-opt{
+    border:3px solid #E8E0D0; background:#fff; border-radius:16px;
+    padding:18px 8px; font-size:22px; font-weight:800; cursor:pointer; color:var(--ink);
+    transition:transform .1s, border-color .15s, background .15s;
+  }
+  .q-opt:active{ transform:scale(.94); }
+  .q-opt.correct{ border-color:var(--green); background:#EAFBF4; }
+  .q-opt.wrong{ border-color:var(--red); background:#FFEDEA; }
+  .q-feedback{ margin-top:12px; font-size:18px; font-weight:800; min-height:28px; }
+  .q-feedback.good{ color:var(--green-d); }
+  .q-feedback.bad{ color:var(--red-d); }
+  .q-next{
+    margin-top:10px; background:var(--gold); color:#fff; border:none; border-radius:999px;
+    padding:12px 28px; font-size:17px; font-weight:900; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(255,184,77,.4);
+  }
+  .q-next.show{ display:inline-block; }
+
+  /* 结算弹层 */
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; display:none; align-items:center; justify-content:center; padding:24px; }
+  .overlay.show{ display:flex; }
+  .modal{ background:#fff; border-radius:24px; padding:24px; max-width:420px; width:100%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.3); }
+  .modal .mi{ font-size:56px; }
+  .modal h3{ margin:8px 0 6px; font-size:22px; }
+  .modal p{ margin:0 0 14px; color:var(--sub); font-size:14px; line-height:1.6; }
+  .modal .big-num{ font-size:34px; font-weight:900; color:var(--gold-d); }
+  .modal .btn-row{ display:flex; gap:10px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .btn{ border:none; border-radius:999px; padding:13px 24px; font-size:16px; font-weight:900; cursor:pointer; }
+  .btn-green{ background:var(--green); color:#fff; }
+  .btn-gold{ background:var(--gold); color:#fff; }
+  .btn-ghost{ background:#F0E8D8; color:var(--ink); }
+  .btn-red{ background:var(--red); color:#fff; }
+
+  /* 打飞机 */
+  .fly-wrap{ position:relative; flex:1; min-height:420px; border-radius:var(--radius); overflow:hidden; background:linear-gradient(180deg,#0b1e3a,#123a63); box-shadow:0 6px 20px rgba(0,0,0,.25); }
+  #flyCanvas{ width:100%; height:100%; display:block; touch-action:none; }
+  .fly-stats{ display:flex; gap:10px; margin-bottom:10px; }
+  .fly-stat{ flex:1; background:rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:8px 12px; font-size:13px; font-weight:800; text-align:center; }
+  .fly-hint{ position:absolute; bottom:10px; left:0; right:0; text-align:center; color:rgba(255,255,255,.6); font-size:12px; pointer-events:none; }
+
+  /* 复活挑战 */
+  .revive-q{ background:#FFF3DC; border-radius:16px; padding:14px; margin-bottom:12px; }
+  .revive-q .t{ font-size:20px; font-weight:900; margin-bottom:10px; min-height:30px; }
+  .revive-q .opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .revive-q .o{ border:3px solid #E8E0D0; background:#fff; border-radius:14px; padding:14px 8px; font-size:20px; font-weight:800; cursor:pointer; }
+  .revive-q .o.correct{ border-color:var(--green); background:#EAFBF4; }
+  .revive-q .o.wrong{ border-color:var(--red); background:#FFEDEA; }
+  .revive-progress{ font-size:13px; font-weight:800; color:var(--sub); }
+
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:80px; z-index:150; background:rgba(74,59,46,.93); color:#fff; border-radius:999px; padding:11px 24px; font-size:15px; font-weight:800; box-shadow:0 6px 20px rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; }
+  .toast.show{ opacity:1; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .shake{ animation:shake .3s; }
+  @keyframes flashred{ 0%{background:rgba(255,0,0,.25)} 100%{background:transparent} }
+  .screen-flash{ position:fixed; inset:0; background:rgba(255,0,0,.25); z-index:90; pointer-events:none; opacity:0; }
+  .screen-flash.on{ animation:flashred .4s; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- ======== 主菜单 ======== -->
+<section id="scrMenu" class="screen show">
+  <header>
+    <h1>怪兽大作战 🎮</h1>
+    <div class="pill">💰 <span class="gold" id="menuCoins">0</span></div>
+    <div class="pill">⭐ <span class="gold" id="menuStars">0</span></div>
+  </header>
+  <main>
+    <div class="menu-hero">
+      <div class="big">🎲😈⚔️</div>
+      <h2>学知识，打怪兽！</h2>
+      <p>答对题就能打败怪兽，答错会被怪兽咬哦</p>
+    </div>
+    <div class="mode-grid">
+      <button class="mode-card battle" id="btnModeBattle">
+        <div class="mi">⚔️</div>
+        <div class="mn">怪兽大作战</div>
+        <div class="md">做题砍怪兽 · 一关比一关强</div>
+      </button>
+      <button class="mode-card fly" id="btnModeFly">
+        <div class="mi">✈️</div>
+        <div class="mn">星际飞行</div>
+        <div class="md">驾驶飞机打敌机 · 坠机要答题复活</div>
+      </button>
+    </div>
+    <div class="subj-wrap">
+      <div class="label">今天学什么？</div>
+      <div class="subj-row" id="subjRow">
+        <button class="subj-btn on" data-s="math">🔢 数学</button>
+        <button class="subj-btn" data-s="chinese">📖 语文</button>
+        <button class="subj-btn" data-s="english">🔤 英语</button>
+        <button class="subj-btn" data-s="mix">🎲 混合</button>
+      </div>
+    </div>
+    <button class="start-btn" id="btnStart">开始战斗 ▶</button>
+    <div class="help-box">
+      💡 <b>怪兽大作战</b>：答对砍怪兽，答错被咬，连续答对3题会<b>暴击</b>！生命没了可以<b>挑战复活</b>（连对3题）。<br>
+      💡 <b>星际飞行</b>：手指拖动飞机躲陨石、打敌机。坠机后<b>做对题才能复活</b>！<br>
+      💡 每场战斗结束赚到的金币会自动换成 ⭐ 加到「学习乐园」里。
+    </div>
+  </main>
+</section>
+
+<!-- ======== 怪兽大作战 ======== -->
+<section id="scrBattle" class="screen">
+  <header>
+    <button class="back" id="btnBackBattle">← 退出</button>
+    <h1>⚔️ 怪兽大作战</h1>
+    <div class="pill">💰 <span class="gold" id="battleCoins">0</span></div>
+  </header>
+  <main>
+    <div class="battle-head">
+      <div class="hp-box">
+        <div class="hp-label"><span>❤️ 我</span><span id="playerHpText">100</span></div>
+        <div class="hp-track"><div class="hp-fill player" id="playerHpFill" style="width:100%"></div></div>
+      </div>
+      <div class="hp-box">
+        <div class="hp-label"><span id="monsterName">怪兽</span><span id="monsterHpText">0</span></div>
+        <div class="hp-track"><div class="hp-fill monster" id="monsterHpFill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="arena" id="battleArena">
+      <div class="monster-zone">
+        <div class="monster" id="monsterEmoji">👾</div>
+        <div class="monster-level" id="battleLevel">第 1 关</div>
+        <div class="monster-name" id="monsterTitle">外星虫</div>
+      </div>
+      <div class="player-row"><span class="pa">🦸</span><span class="trigger-line">连击 <span class="hot-count" id="comboCount">0</span>/3（满3下回暴击！）</span></div>
+    </div>
+    <div class="q-card">
+      <div class="q-subj" id="battleSubj">数学</div>
+      <div class="q-text" id="battleQ">?</div>
+      <div class="q-options" id="battleOpts"></div>
+      <div class="q-feedback" id="battleFb"></div>
+      <button class="q-next" id="battleNext">继续 ▶</button>
+    </div>
+  </main>
+</section>
+
+<!-- ======== 星际飞行 ======== -->
+<section id="scrFly" class="screen">
+  <header>
+    <button class="back" id="btnBackFly">← 退出</button>
+    <h1>✈️ 星际飞行</h1>
+    <div class="pill">💰 <span class="gold" id="flyCoins">0</span></div>
+  </header>
+  <main>
+    <div class="fly-stats">
+      <div class="fly-stat">❤️ 生命 <span id="flyHpTxt">100</span></div>
+      <div class="fly-stat">🎯 击落 <span id="flyKillTxt">0</span></div>
+      <div class="fly-stat">🌠 分数 <span id="flyScoreTxt">0</span></div>
+    </div>
+    <div class="fly-wrap">
+      <canvas id="flyCanvas"></canvas>
+      <div class="fly-hint">👆 手指拖动飞机 · 自动开火</div>
+    </div>
+  </main>
+</section>
+
+<!-- 结算弹层 -->
+<div class="overlay" id="ovlResult">
+  <div class="modal">
+    <div class="mi" id="resIcon">🏆</div>
+    <h3 id="resTitle">战斗结束</h3>
+    <p id="resMsg"></p>
+    <div class="big-num" id="resEarn">+0 ⭐</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="resMenu">回主菜单</button>
+      <button class="btn btn-green" id="resAgain">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<!-- 复活弹层 -->
+<div class="overlay" id="ovlRevive">
+  <div class="modal">
+    <div class="mi">💫</div>
+    <h3 id="revTitle">打败怪兽才能复活！</h3>
+    <p id="revHint">连续答对 <b>3</b> 题就能复活一半生命</p>
+    <div class="revive-progress" id="revProg">已答对 0 / 3</div>
+    <div class="revive-q" id="revQBox">
+      <div class="t" id="revQ"></div>
+      <div class="opts" id="revOpts"></div>
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-ghost" id="revGiveUp">放弃复活</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen-flash" id="screenFlash"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================
+   常识与常量
+===================================================== */
+var STUDY_KEY = 'studyPark.v1';   // 学习乐园星星
+var GAME_KEY  = 'monsterStudy.v1'; // 本游戏存档
+var AUDIO = null;
+function ensureAudio(){
+  if(AUDIO) return;
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(AC) AUDIO = new AC();
+  }catch(e){}
+}
+function beep(freq, dur, type, vol){
+  ensureAudio();
+  if(!AUDIO) return;
+  try{
+    var o=AUDIO.createOscillator(), g=AUDIO.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol||0.18, AUDIO.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AUDIO.currentTime+(dur||0.2));
+    o.connect(g); g.connect(AUDIO.destination);
+    o.start(); o.stop(AUDIO.currentTime+(dur||0.2)+0.05);
+  }catch(e){}
+}
+function sfxGood(){ beep(880,0.14,'sine',0.2); setTimeout(function(){beep(1175,0.16,'sine',0.2);},90); }
+function sfxBad(){ beep(180,0.28,'sawtooth',0.15); }
+function sfxKill(){ beep(660,0.1,'square',0.15); setTimeout(function(){beep(990,0.18,'square',0.15);},80); }
+function sfxRevive(){ beep(523,0.12,'sine',0.2); setTimeout(function(){beep(659,0.12,'sine',0.2);},100); setTimeout(function(){beep(784,0.2,'sine',0.22);},200); }
+
+/* =====================================================
+   存档
+===================================================== */
+function loadGame(){
+  try{ var s=localStorage.getItem(GAME_KEY); if(!s) return {coins:0}; var d=JSON.parse(s); if(typeof d==='object'&&d) return {coins:+d.coins||0}; return {coins:0}; }catch(e){ return {coins:0}; }
+}
+function saveGame(){ try{ localStorage.setItem(GAME_KEY, JSON.stringify(game)); }catch(e){} }
+var game = loadGame();
+
+function readStudyStars(){
+  try{ var s=localStorage.getItem(STUDY_KEY); if(!s) return 0; var d=JSON.parse(s); return (d && typeof d.stars==='number')?d.stars:0; }catch(e){ return 0; }
+}
+/* 把金币兑换成学习乐园星星：10 金币 = 1 星，只记整数差 */
+function convertCoinsToStars(){
+  try{
+    var added=Math.floor(game.coins/10);
+    if(added<=0) return 0;
+    var s=localStorage.getItem(STUDY_KEY);
+    var d;
+    try{ d=s?JSON.parse(s):null; }catch(e){ d=null; }
+    if(!d||typeof d!=='object') d={};
+    if(typeof d.stars!=='number') d.stars=0;
+    d.stars += added;
+    localStorage.setItem(STUDY_KEY, JSON.stringify(d));
+    game.coins -= added*10;   // 已经兑换掉的金币
+    saveGame();
+    return added;
+  }catch(e){ return 0; }
+}
+
+/* =====================================================
+   题库（一年级：数学/语文/英语）
+===================================================== */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+/* 生成一个带选项的选择题 {q, opts[4], ans} —— 选项全局唯一 */
+function makeOptions(correct, distractors){
+  // 先去重（用字符串作为key，保证唯一）
+  var seen={}; var unique=[correct];
+  seen[correct]=1;
+  (distractors||[]).forEach(function(d){
+    if(!seen[d] && d!==correct){ seen[d]=1; unique.push(d); }
+  });
+  // 若不足4个，用一批通用填充词补足，仍保证唯一
+  var FILLERS=['7','8','9','5','6','blue','green','red','鸟','鱼','虫','花','山','水','四','五','六'];
+  var fi=0;
+  while(unique.length<4 && fi<FILLERS.length){
+    var f=FILLERS[fi++];
+    if(!seen[f]){ seen[f]=1; unique.push(f); }
+  }
+  var opts=shuffle(unique.slice(0,4));
+  return { opts:opts, ans:opts.indexOf(correct) };
+}
+
+/* ---- 数学 ---- */
+function qMath(){
+  var kind=Math.floor(Math.random()*4);
+  if(kind===0){ // 10以内加减
+    var plus=Math.random()<0.6;
+    var a=1+Math.floor(Math.random()*9), b=1+Math.floor(Math.random()*9);
+    var ans, q;
+    if(plus){
+      ans=a+b;
+      if(ans>10){ a=10-b; if(a<1) a=1; ans=a+b; }
+      q=a+' + '+b+' = ?';
+    }else{
+      if(a<b){ var tmp=a; a=b; b=tmp; }   // 保证 a>=b，答案非负
+      ans=a-b;
+      if(ans===0){ if(a>1){ a--; } else { b++; } ans=a-b; } // 避免答案0太频繁
+      q=a+' − '+b+' = ?';
+    }
+    var ds=[]; var tries=0;
+    while(ds.length<3 && tries<80){
+      var d=ans+Math.floor(Math.random()*11)-5; tries++;
+      if(d!==ans && d>=0 && d<=20 && ds.indexOf(d)<0) ds.push(d);
+    }
+    while(ds.length<3) ds.push((ans+ds.length+2)%12+1);
+    var m=makeOptions(String(ans), ds.map(String));
+    return { q:q, o:m.opts, a:m.ans, subj:'数学', tip:'算一算' };
+  }
+  if(kind===1){ // 20以内不进位进位加法
+    var a2=2+Math.floor(Math.random()*12), b2=2+Math.floor(Math.random()*9);
+    if(a2+b2>20) b2=20-a2;
+    var ans2=a2+b2;
+    var ds2=[]; var t2=0;
+    while(ds2.length<3 && t2<60){ var d2=ans2+Math.floor(Math.random()*9)-4; t2++; if(d2!==ans2 && d2!==a2 && d2>=0 && d2<=20 && ds2.indexOf(d2)<0) ds2.push(d2); }
+    while(ds2.length<3) ds2.push((ans2+ds2.length+3)%19+1);
+    var m2=makeOptions(String(ans2), ds2.map(String));
+    return { q:a2+' + '+b2+' = ?', o:m2.opts, a:m2.ans, subj:'数学', tip:'加一加' };
+  }
+  if(kind===2){ // 哪边大
+    var x=1+Math.floor(Math.random()*15), y=1+Math.floor(Math.random()*15);
+    while(y===x) y=1+Math.floor(Math.random()*15);
+    var sign = x>y?'＞':(x<y?'＜':'＝');
+    var syms=['＞','＜','＝','≥'];
+    return { q:x+' ○ '+y+' , ○ 里填什么？', o:syms, a:x>y?0:(y>x?1:2), subj:'数学', tip:'比一比大小' };
+  }
+  // 数的分成
+  var total=4+Math.floor(Math.random()*6); // 4~9
+  var part=1+Math.floor(Math.random()*(total-1));
+  while(part===total-part) part=1+Math.floor(Math.random()*(total-1));
+  var miss=total-part;
+  var useMiss = Math.random()<0.5;
+  var q3 = useMiss ? (part+' + ○ = '+total+' ，○ 是多少？') : (total+' − '+part+' = ○ , ○ 是多少？');
+  var ans3 = useMiss ? miss : (total-part);
+  var ds3=[]; var t3=0;
+  while(ds3.length<3 && t3<60){
+    var d3=ans3+Math.floor(Math.random()*7)-3; t3++;
+    if(d3!==ans3 && d3>=0 && d3<=total && ds3.indexOf(d3)<0) ds3.push(d3);
+  }
+  while(ds3.length<3) ds3.push((ans3+ds3.length+2)%(total+1));
+  var m3=makeOptions(String(ans3), ds3.map(String));
+  return { q:q3, o:m3.opts, a:m3.ans, subj:'数学', tip:'想一想' };
+}
+
+/* ---- 语文 ---- */
+var HANZI = [
+  {z:'日', p:'rì', w:['日子','日出','日月']}, {z:'月', p:'yuè', w:['月亮','月牙','明月']},
+  {z:'山', p:'shān', w:['高山','大山','山洞']}, {z:'水', p:'shuǐ', w:['喝水','河水','水果']},
+  {z:'火', p:'huǒ', w:['大火','火车','火苗']}, {z:'木', p:'mù', w:['木头','树木','木门']},
+  {z:'花', p:'huā', w:['花朵','花瓣','花园']}, {z:'鸟', p:'niǎo', w:['小鸟','飞鸟','鸟巢']},
+  {z:'鱼', p:'yú', w:['小鱼','金鱼','鱼儿']}, {z:'人', p:'rén', w:['人们','大人','人群']},
+  {z:'口', p:'kǒu', w:['口水','门口','人口']}, {z:'手', p:'shǒu', w:['小手','手掌','手指']},
+  {z:'大', p:'dà', w:['大山','大力','长大']}, {z:'小', p:'xiǎo', w:['小孩','小心','小草']},
+  {z:'上', p:'shàng', w:['上面','上学','马上']}, {z:'下', p:'xià', w:['下面','下雨','下课']},
+  {z:'中', p:'zhōng', w:['中间','中午','中国']}, {z:'天', p:'tiān', w:['天空','今天','蓝天']},
+  {z:'地', p:'dì', w:['土地','大地','地上']}, {z:'禾', p:'hé', w:['禾苗','锄禾']},
+  {z:'田', p:'tián', w:['田地','稻田','农田']}, {z:'苗', p:'miáo', w:['禾苗','树苗']},
+  {z:'风', p:'fēng', w:['大风','风雨','春风']}, {z:'雨', p:'yǔ', w:['下雨','雨天','雨水']},
+  {z:'云', p:'yún', w:['白云','云朵','乌云']}, {z:'星', p:'xīng', w:['星星','星光']},
+  {z:'红', p:'hóng', w:['红色','红花']}, {z:'绿', p:'lǜ', w:['绿色','绿叶']},
+  {z:'白', p:'bái', w:['白色','白云','白天']}, {z:'黑', p:'hēi', w:['黑色','黑夜']},
+  {z:'高', p:'gāo', w:['高山','高大']}, {z:'矮', p:'ǎi', w:['高矮','矮小']}
+];
+var DUIYI = [
+  ['大','小'],['上','下'],['多','少'],['高','矮'],['黑','白'],['快','慢'],['热','冷'],['开','关'],['左','右'],['前','后'],['远','近'],['胖','瘦']
+];
+function qChinese(){
+  var kind=Math.floor(Math.random()*3);
+  if(kind===0){ // 看汉字选拼音
+    var h=pick(HANZI);
+    var ds=[]; var pool=HANZI.slice().filter(function(x){return x.p!==h.p;});
+    var used={};
+    while(ds.length<3 && pool.length){
+      var cand=pick(pool);
+      if(!used[cand.p]){ used[cand.p]=1; ds.push(cand.p); }
+      pool=pool.filter(function(x){return x.p!==cand.p;});
+    }
+    while(ds.length<3){ var extra=pick([ 'qī','sān','wǔ','shí','bā','jiǔ']); if(ds.indexOf(extra)<0 && extra!==h.p) ds.push(extra); }
+    var m=makeOptions(h.p, ds);
+    return { q:'“'+h.z+'” 的拼音是？', o:m.opts, a:m.ans, subj:'语文', tip:'读一读' };
+  }
+  if(kind===1){ // 给拼音选汉字
+    var h2=pick(HANZI);
+    var ds2=[]; var pool2=HANZI.slice().filter(function(x){return x.z!==h2.z;});
+    var used2={};
+    while(ds2.length<3 && pool2.length){
+      var cand2=pick(pool2);
+      if(!used2[cand2.z]){ used2[cand2.z]=1; ds2.push(cand2.z); }
+      pool2=pool2.filter(function(x){return x.z!==cand2.z;});
+    }
+    while(ds2.length<3){ var e2=['日','月','山','水','田']; for(var i=0;i<e2.length && ds2.length<3;i++){ if(e2[i]!==h2.z && ds2.indexOf(e2[i])<0) ds2.push(e2[i]); } }
+    var m2=makeOptions(h2.z, ds2);
+    return { q:'拼音 '+h2.p+' ，选一选是哪个字？', o:m2.opts, a:m2.ans, subj:'语文', tip:'认一认' };
+  }
+  // 反义词
+  var pair=pick(DUIYI);
+  var target=Math.random()<0.5?pair[0]:pair[1];
+  var right = target===pair[0]?pair[1]:pair[0];
+  var ds3=[];
+  DUIYI.forEach(function(p){
+    var cands=[p[0],p[1]];
+    cands.forEach(function(c){ if(c!==right && c!==target && ds3.indexOf(c)<0) ds3.push(c); });
+  });
+  ds3=ds3.slice(0,3);
+  while(ds3.length<3){ var e=['多','少','快','慢']; for(var i=0;i<e.length && ds3.length<3;i++){ if(e[i]!==right && ds3.indexOf(e[i])<0) ds3.push(e[i]); } }
+  var m3=makeOptions(right, ds3);
+  return { q:'“'+target+'” 的反义词是？', o:m3.opts, a:m3.ans, subj:'语文', tip:'想一想' };
+}
+
+/* ---- 英语 ---- */
+var ENWORDS = [
+  {c:'苹果', e:'apple'}, {c:'香蕉', e:'banana'}, {c:'橙子', e:'orange'}, {c:'小猫', e:'cat'},
+  {c:'小狗', e:'dog'}, {c:'小鸟', e:'bird'}, {c:'鱼', e:'fish'}, {c:'红色', e:'red'},
+  {c:'蓝色', e:'blue'}, {c:'绿色', e:'green'}, {c:'黄色', e:'yellow'}, {c:'一', e:'one'},
+  {c:'二', e:'two'}, {c:'三', e:'three'}, {c:'四', e:'four'}, {c:'五', e:'five'},
+  {c:'牛奶', e:'milk'}, {c:'鸡蛋', e:'egg'}, {c:'眼睛', e:'eye'}, {c:'耳朵', e:'ear'},
+  {c:'手', e:'hand'}, {c:'脚', e:'foot'}, {c:'爸爸', e:'dad'}, {c:'妈妈', e:'mom'}
+];
+function qEnglish(){
+  var w=pick(ENWORDS);
+  var flip=Math.random()<0.5;
+  var ds=[]; var pool=ENWORDS.slice().filter(function(x){return x!==w;});
+  var used={};
+  while(ds.length<3 && pool.length){
+    var cand=pick(pool);
+    var key = flip?cand.e:cand.c;
+    if(!used[key]){ used[key]=1; ds.push(key); }
+    pool=pool.filter(function(x){return x!==cand;});
+  }
+  // 不足 3 个干扰项时，用固定词补足（按需中/英）
+  var fillers = flip ? ['cat','dog','red','blue','one','two'] : ['猫','狗','红','蓝','一','二','山','水'];
+  var fi2=0;
+  while(ds.length<3 && fi2<fillers.length){
+    var f2=fillers[fi2++];
+    if(ds.indexOf(f2)<0 && f2!==(flip?w.e:w.c)) ds.push(f2);
+  }
+  var q, m;
+  if(flip){
+    var mq=makeOptions(w.e, ds);
+    q='“'+w.c+'” 用英语怎么说？';
+    m=mq;
+  }else{
+    var m2=makeOptions(w.c, ds);
+    q='“'+w.e+'” 是什么意思？';
+    m=m2;
+  }
+  return { q:q, o:m.opts, a:m.ans, subj:'英语', tip:'听一听' };
+}
+
+function genQuestion(subject){
+  if(subject==='math') return qMath();
+  if(subject==='chinese') return qChinese();
+  if(subject==='english') return qEnglish();
+  var r=Math.floor(Math.random()*3);
+  return r===0?qMath():(r===1?qChinese():qEnglish());
+}
+
+/* =====================================================
+   屏幕切换与通用
+===================================================== */
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('show'); });
+  document.getElementById(id).classList.add('show');
+}
+var toastTimer=null;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+function screenFlash(){
+  var f=document.getElementById('screenFlash');
+  f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* 菜单 */
+var selSubject='math';
+document.getElementById('subjRow').addEventListener('click', function(e){
+  var b=e.target.closest('.subj-btn'); if(!b) return;
+  document.querySelectorAll('.subj-btn').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on');
+  selSubject=b.dataset.s;
+});
+function refreshMenu(){
+  document.getElementById('menuCoins').textContent=game.coins;
+  document.getElementById('menuStars').textContent=readStudyStars();
+}
+document.getElementById('btnModeBattle').addEventListener('click', function(){ battleMode='battle'; pendingMode='battle'; });
+document.getElementById('btnModeFly').addEventListener('click', function(){ flyMode='fly'; pendingMode='fly'; });
+
+/* =====================================================
+   怪兽大作战
+===================================================== */
+var MONSTERS=[
+  {e:'🦠', n:'细菌怪'}, {e:'👾', n:'外星虫'}, {e:'🦟', n:'嗡嗡蚊'}, {e:'🕷️', n:'黑蜘蛛'},
+  {e:'🐍', n:'毒蛇'}, {e:'🐊', n:'大鳄鱼'}, {e:'🦂', n:'毒蝎王'}, {e:'🦈', n:'鲨鱼怪'},
+  {e:'🐲', n:'喷火龙'}, {e:'🦖', n:'霸王龙'}, {e:'👹', n:'大魔王'}, {e:'💀', n:'终极邪灵'}
+];
+var BATTLE={
+  subject:'math', level:1, playerHp:100, monsterHp:0, combo:0,
+  maxMonsterHp:0, reviveUsed:0, MAX_REVIVE:2, running:false, locked:false,
+  coinsEarned:0, kills:0
+};
+function monsterBaseHp(level){ return 60 + (level-1)*35; }
+function monsterAttack(level){ return 7 + Math.floor((level-1)*1.5); }
+function playerAttack(level){ return 13 + Math.floor((level-1)*0.8); }
+
+var pendingMode='battle';
+var battleMode='battle';
+var flyMode='fly';
+document.getElementById('btnStart').addEventListener('click', function(){
+  ensureAudio();
+  if(pendingMode==='battle') startBattle();
+  else startFly();
+});
+
+function startBattle(){
+  BATTLE.subject=selSubject;
+  BATTLE.level=1; BATTLE.playerHp=100; BATTLE.combo=0;
+  BATTLE.reviveUsed=0; BATTLE.running=true; BATTLE.locked=false;
+  BATTLE.coinsEarned=0; BATTLE.kills=0;
+  battleSpawnMonster(1);
+  show('scrBattle');
+}
+function battleSpawnMonster(level){
+  BATTLE.level=level;
+  BATTLE.monsterHp=BATTLE.maxMonsterHp=monsterBaseHp(level);
+  var m=MONSTERS[(level-1)%MONSTERS.length];
+  document.getElementById('monsterEmoji').textContent=m.e;
+  document.getElementById('monsterName').textContent=m.n;
+  document.getElementById('monsterTitle').textContent=m.n;
+  document.getElementById('battleLevel').textContent='第 '+level+' 关';
+  renderHp();
+  askBattleQuestion();
+}
+function renderHp(){
+  var ph=Math.max(0,BATTLE.playerHp), mh=Math.max(0,BATTLE.monsterHp);
+  document.getElementById('playerHpText').textContent=Math.ceil(ph);
+  document.getElementById('playerHpFill').style.width=Math.max(0,Math.min(100,ph/100*100))+'%';
+  document.getElementById('monsterHpText').textContent=Math.ceil(mh);
+  document.getElementById('monsterHpFill').style.width=Math.max(0,Math.min(100,mh/BATTLE.maxMonsterHp*100))+'%';
+}
+var currentQ=null;
+function askBattleQuestion(){
+  document.getElementById('battleFb').textContent='';
+  document.getElementById('battleFb').className='q-feedback';
+  var nxt=document.getElementById('battleNext');
+  nxt.classList.remove('show');
+  currentQ=genQuestion(BATTLE.subject);
+  document.getElementById('battleSubj').textContent=(currentQ.subj||'')+' · '+(currentQ.tip||'');
+  document.getElementById('battleQ').textContent=currentQ.q;
+  var box=document.getElementById('battleOpts');
+  box.innerHTML='';
+  currentQ.o.forEach(function(opt,idx){
+    var b=document.createElement('button');
+    b.className='q-opt'; b.textContent=opt; b.dataset.i=idx;
+    b.style.pointerEvents='auto';   // 重要：恢复可点
+    box.appendChild(b);
+  });
+  BATTLE.locked=false;
+}
+document.getElementById('battleOpts').addEventListener('click', function(e){
+  var b=e.target.closest('.q-opt'); if(!b) return;
+  if(!BATTLE.running || BATTLE.locked) return;
+  BATTLE.locked=true;
+  var idx=+b.dataset.i;
+  var buttons=document.querySelectorAll('#battleOpts .q-opt');
+  buttons.forEach(function(x){ x.style.pointerEvents='none'; });
+  if(idx===currentQ.a){
+    b.classList.add('correct');
+    BATTLE.combo++;
+    var crit = BATTLE.combo>=3;
+    if(crit){ BATTLE.combo=0; }
+    var dmg=playerAttack(BATTLE.level);
+    if(crit) dmg*=2;
+    sfxGood();
+    BATTLE.monsterHp-=dmg;
+    document.getElementById('battleFb').textContent=crit?('💥 暴击！成功造成 '+dmg+' 点伤害') :('✅ 太棒了！怪兽受到 '+dmg+' 点伤害');
+    document.getElementById('battleFb').className='q-feedback good';
+    animateMonsterHit();
+    if(BATTLE.monsterHp<=0){
+      BATTLE.kills++;
+      game.coins+=20+BATTLE.level*5;
+      BATTLE.coinsEarned+=20+BATTLE.level*5;
+      saveGame();
+      sfxKill();
+      setTimeout(function(){
+        document.getElementById('battleFb').textContent='🎉 击败了'+document.getElementById('monsterTitle').textContent+'！(+'+(20+BATTLE.level*5)+'金币)';
+        showNextButton('下一关 ▶');
+      }, 500);
+      renderHp();
+      return;
+    }
+    renderHp();
+    showNextButton('继续 ▶');
+  }else{
+    b.classList.add('wrong');
+    BATTLE.combo=0;
+    sfxBad(); screenFlash();
+    var atk=monsterAttack(BATTLE.level);
+    BATTLE.playerHp-=atk;
+    document.getElementById('battleFb').textContent='❌ 答错了……你被咬了 '+atk+' 点伤害';
+    document.getElementById('battleFb').className='q-feedback bad';
+    document.getElementById('playerHpFill').parentElement.parentElement.classList.add('shake');
+    setTimeout(function(){ document.getElementById('playerHpFill').parentElement.parentElement.classList.remove('shake'); },400);
+    renderHp();
+    if(BATTLE.playerHp<=0){
+      setTimeout(function(){ onPlayerDown(); }, 600);
+      return;
+    }
+    showNextButton('继续 ▶');
+  }
+});
+function animateMonsterHit(){
+  var m=document.getElementById('monsterEmoji');
+  m.classList.add('hit');
+  setTimeout(function(){ m.classList.remove('hit'); },130);
+}
+function showNextButton(txt){
+  var n=document.getElementById('battleNext');
+  n.textContent=txt;
+  n.classList.add('show');
+  n.onclick=function(){
+    if(BATTLE.level>0 && BATTLE.monsterHp<=0){
+      // 进入下一关
+      battleSpawnMonster(BATTLE.level+1);
+    }else{
+      askBattleQuestion();
+    }
+  };
+}
+function endBattle(victory){
+  BATTLE.running=false;
+  convertCoinsToStars();
+  saveGame();
+  refreshMenu();
+  var stars=Math.floor(BATTLE.coinsEarned/10);
+  document.getElementById('resIcon').textContent=victory?'🏆':'💔';
+  document.getElementById('resTitle').textContent=victory?('打败'+BATTLE.kills+'只怪兽！'):'战斗结束';
+  document.getElementById('resMsg').textContent=victory?'太厉害了！继续挑战更强的怪兽吧':'下次要更细心哦，加油！';
+  document.getElementById('resEarn').textContent=(stars>0?('+'+stars+' ⭐'):'金币 '+BATTLE.coinsEarned+'（不足10不换星）');
+  var again=document.getElementById('resAgain');
+  again.textContent='再打一次';
+  again.onclick=function(){ document.getElementById('ovlResult').classList.remove('show'); startBattle(); };
+  document.getElementById('resMenu').onclick=function(){ document.getElementById('ovlResult').classList.remove('show'); show('scrMenu'); refreshMenu(); };
+  document.getElementById('ovlResult').classList.add('show');
+}
+function onPlayerDown(){
+  BATTLE.running=false;
+  if(BATTLE.reviveUsed < BATTLE.MAX_REVIVE){
+    openRevive('battle');
+  }else{
+    endBattle(false);
+  }
+}
+document.getElementById('btnBackBattle').addEventListener('click', function(){
+  if(BATTLE.running) endBattle(false);
+  else show('scrMenu');
+});
+
+/* =====================================================
+   复活挑战（共用：连对3题复活）
+===================================================== */
+var REVIVE={ src:'battle', need:3, got:0, q:null, locked:false };
+function openRevive(src){
+  REVIVE.src=src; REVIVE.need=3; REVIVE.got=0; REVIVE.locked=false;
+  document.getElementById('revProg').textContent='已答对 0 / '+REVIVE.need;
+  document.getElementById('revHint').innerHTML='连续答对 <b>'+REVIVE.need+'</b> 题就能复活一半生命';
+  document.getElementById('revTitle').textContent = src==='battle'?'😵 你倒下了……':'💥 飞机坠落了……';
+  askReviveQ();
+  document.getElementById('ovlRevive').classList.add('show');
+}
+function askReviveQ(){
+  REVIVE.q=genQuestion(BATTLE.subject || 'mix');
+  document.getElementById('revQ').textContent=REVIVE.q.q;
+  var box=document.getElementById('revOpts');
+  box.innerHTML='';
+  REVIVE.q.o.forEach(function(opt,idx){
+    var b=document.createElement('button');
+    b.className='o'; b.textContent=opt; b.dataset.i=idx;
+    b.style.pointerEvents='auto';   // 恢复可点
+    box.appendChild(b);
+  });
+  REVIVE.locked=false;
+}
+document.getElementById('revOpts').addEventListener('click', function(e){
+  var b=e.target.closest('.o'); if(!b) return;
+  if(REVIVE.locked) return;
+  REVIVE.locked=true;
+  var idx=+b.dataset.i;
+  var btns=document.querySelectorAll('#revOpts .o');
+  btns.forEach(function(x){ x.style.pointerEvents='none'; });
+  if(idx===REVIVE.q.a){
+    b.classList.add('correct');
+    sfxGood();
+    REVIVE.got++;
+    document.getElementById('revProg').textContent='已答对 '+REVIVE.got+' / '+REVIVE.need;
+    if(REVIVE.got>=REVIVE.need){
+      setTimeout(function(){ reviveSuccess(); }, 400);
+    }else{
+      setTimeout(function(){ askReviveQ(); }, 500);
+    }
+  }else{
+    b.classList.add('wrong');
+    sfxBad();
+    document.getElementById('revProg').textContent='答错了，重头开始（0 / '+REVIVE.need+'）';
+    setTimeout(function(){ REVIVE.got=0; askReviveQ(); }, 600);
+  }
+});
+function reviveSuccess(){
+  sfxRevive();
+  document.getElementById('ovlRevive').classList.remove('show');
+  if(REVIVE.src==='battle'){
+    BATTLE.reviveUsed++;
+    BATTLE.playerHp=50;
+    BATTLE.running=true; BATTLE.locked=false;
+    renderHp();
+    toast('💫 复活成功！生命恢复到 50');
+    askBattleQuestion();
+  }else{
+    flyReviveOk();
+  }
+}
+document.getElementById('revGiveUp').addEventListener('click', function(){
+  document.getElementById('ovlRevive').classList.remove('show');
+  if(REVIVE.src==='battle'){ endBattle(false); }
+  else{ flyGiveUp(); }
+});
+
+/* =====================================================
+   星际飞行（Canvas）
+===================================================== */
+var FLY={
+  running:false, hp:100, kills:0, score:0, coinsEarned:0,
+  player:{x:0,y:0,r:26}, bullets:[], enemies:[], stars:[],
+  lastShot:0, spawnTimer:0, raf:null, dragging:false
+};
+var flyCanvas=null, flyCtx=null;
+
+function startFly(){
+  // 必须先切屏再量尺寸（否则可见宽度为0）
+  show('scrFly');
+  var c=document.getElementById('flyCanvas');
+  var wrap=c.parentElement;
+  var w=wrap.clientWidth, h=Math.max(420, wrap.clientHeight);
+  c.width=w; c.height=h;
+  flyCanvas=c; flyCtx=c.getContext('2d');
+  FLY.running=true; FLY.hp=100; FLY.kills=0; FLY.score=0; FLY.coinsEarned=0;
+  FLY.player.x=w/2; FLY.player.y=h-70; FLY.player.r=28;
+  FLY.bullets=[]; FLY.enemies=[]; FLY.stars=[];
+  for(var i=0;i<30;i++) FLY.stars.push({x:Math.random()*w, y:Math.random()*h, s:Math.random()*2+1, sp:Math.random()*1.2+0.4});
+  FLY.lastShot=0; FLY.spawnTimer=0;
+  document.getElementById('flyHpTxt').textContent=FLY.hp;
+  document.getElementById('flyKillTxt').textContent='0';
+  document.getElementById('flyScoreTxt').textContent='0';
+  document.getElementById('flyCoins').textContent=game.coins;
+  flyLoop(0);
+}
+function flyLoop(ts){
+  if(!FLY.running || !flyCtx) return;
+  FLY.raf=requestAnimationFrame(flyLoop);
+  flyUpdate();
+}
+function flyUpdate(){
+  var c=flyCanvas, ctx=flyCtx;
+  var w=c.width, h=c.height;
+  ctx.clearRect(0,0,w,h);
+  // 星空
+  FLY.stars.forEach(function(s){
+    s.y+=s.sp; if(s.y>h){ s.y=0; s.x=Math.random()*w; }
+    ctx.fillStyle='rgba(255,255,255,.7)';
+    ctx.fillRect(s.x,s.y,s.s,s.s);
+  });
+  // 自动开火
+  if(tsNow()-FLY.lastShot>450){
+    FLY.lastShot=tsNow();
+    FLY.bullets.push({x:FLY.player.x, y:FLY.player.y-30, r:6, sp:-9});
+  }
+  // 子弹
+  for(var i=FLY.bullets.length-1;i>=0;i--){
+    var b=FLY.bullets[i];
+    b.y+=b.sp;
+    if(b.y<-20){ FLY.bullets.splice(i,1); continue; }
+    ctx.fillStyle='#FFD966';
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r*0.5,0,Math.PI*2); ctx.fill();
+  }
+  // 生成敌机
+  FLY.spawnTimer++;
+  if(FLY.spawnTimer>60-(FLY.kills*1.2>50?50:FLY.kills*1.2)){
+    FLY.spawnTimer=0;
+    var type=Math.random();
+    var enemy;
+    if(type<0.6){
+      enemy={kind:'enemy', e:'👾', x:Math.random()*(w-60)+30, y:-40, vy:Math.random()*1.6+1.2, hp:1};
+    }else{
+      enemy={kind:'rock', e:'🪨', x:Math.random()*(w-60)+30, y:-40, vy:Math.random()*2.2+1.8, hp:0};
+    }
+    FLY.enemies.push(enemy);
+  }
+  // 敌机移动 + 碰撞
+  for(var j=FLY.enemies.length-1;j>=0;j--){
+    var e=FLY.enemies[j];
+    e.y+=e.vy;
+    // 与子弹碰撞
+    for(var k=FLY.bullets.length-1;k>=0;k--){
+      var bl=FLY.bullets[k];
+      var dx=bl.x-e.x, dy=bl.y-e.y;
+      if(dx*dx+dy*dy < (e.r||28)*(e.r||28)+200){
+        FLY.bullets.splice(k,1);
+        if(e.kind==='enemy'){ e.hp--; if(e.hp<=0){ FLY.enemies.splice(j,1); FLY.kills++; FLY.score+=10; FLY.coinsEarned+=5; sfxKill(); } }
+        break;
+      }
+    }
+    if(FLY.enemies[j]){
+      // 与玩家碰撞
+      var pd=Math.hypot(e.x-FLY.player.x, e.y-FLY.player.y);
+      if(pd < (e.r||28)+FLY.player.r-6){
+        FLY.enemies.splice(j,1);
+        FLY.hp-= e.kind==='rock'?20:12;
+        FLY.score+= e.kind==='rock'?2:5;
+        sfxBad(); screenFlash();
+        document.getElementById('flyHpTxt').textContent=FLY.hp;
+        if(FLY.hp<=0){
+          FLY.hp=0;
+          document.getElementById('flyHpTxt').textContent='0';
+          onFlyDown();
+          return;
+        }
+      }
+    }
+    // 绘制
+    if(FLY.enemies[j]){
+      var e2=FLY.enemies[j];
+      ctx.font='34px serif';
+      ctx.textAlign='center';
+      ctx.fillText(e2.e, e2.x, e2.y);
+    }
+  }
+  // 玩家
+  ctx.font='44px serif';
+  ctx.textAlign='center';
+  ctx.fillText('🚀', FLY.player.x, FLY.player.y);
+  ctx.font='12px sans-serif';
+  ctx.fillStyle='#fff';
+  ctx.fillText('❤️ '+Math.max(0,FLY.hp), FLY.player.x, FLY.player.y+40);
+  // HUD
+  if(Math.floor(tsNow()/1000)%2===0){
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    ctx.font='16px sans-serif';
+    ctx.fillText('击落 '+FLY.kills, 12, 24);
+  }
+}
+var _tsLast=0;
+function tsNow(){ return Date.now(); }
+
+function onFlyDown(){
+  FLY.running=false;
+  cancelAnimationFrame(FLY.raf);
+  convertCoinsToStars(); saveGame();
+  document.getElementById('flyCoins').textContent=game.coins;
+  openRevive('fly');
+}
+function flyContinue(){
+  FLY.running=true;
+  FLY.raf=requestAnimationFrame(flyLoop);
+}
+function flyReviveOk(){
+  FLY.hp=50;
+  document.getElementById('flyHpTxt').textContent=FLY.hp;
+  flyContinue();
+  toast('💫 题目答对，飞机复活成功！');
+}
+function flyGiveUp(){
+  var stars=Math.floor(FLY.coinsEarned/10);
+  document.getElementById('resIcon').textContent='✈️';
+  document.getElementById('resTitle').textContent='本次飞行结束';
+  document.getElementById('resMsg').textContent='击落 '+FLY.kills+' 架敌机，得分 '+FLY.score;
+  document.getElementById('resEarn').textContent=(stars>0?('+'+stars+' ⭐'):'金币 '+FLY.coinsEarned+'（不足10不换星）');
+  var again=document.getElementById('resAgain');
+  again.textContent='再来一次';
+  again.onclick=function(){ document.getElementById('ovlResult').classList.remove('show'); startFly(); };
+  document.getElementById('resMenu').onclick=function(){ document.getElementById('ovlResult').classList.remove('show'); show('scrMenu'); refreshMenu(); };
+  document.getElementById('ovlResult').classList.add('show');
+}
+document.getElementById('btnBackFly').addEventListener('click', function(){
+  if(FLY.running){
+    FLY.running=false;
+    cancelAnimationFrame(FLY.raf);
+    convertCoinsToStars(); saveGame();
+  }
+  show('scrMenu'); refreshMenu();
+});
+
+/* 触摸/鼠标控制飞机 */
+(function(){
+  var c=document.getElementById('flyCanvas');
+  c.addEventListener('touchstart', function(ev){
+    ev.preventDefault();
+    var t=ev.touches[0];
+    flyTouchTo(t.clientX);
+  }, {passive:false});
+  c.addEventListener('touchmove', function(ev){
+    ev.preventDefault();
+    var t=ev.touches[0];
+    flyTouchTo(t.clientX);
+  }, {passive:false});
+  c.addEventListener('mousedown', function(ev){
+    FLY.dragging=true; flyTouchTo(ev.clientX);
+  });
+  window.addEventListener('mousemove', function(ev){
+    if(FLY.dragging) flyTouchTo(ev.clientX);
+  });
+  window.addEventListener('mouseup', function(){ FLY.dragging=false; });
+  function flyTouchTo(clientX){
+    if(FLY.running && flyCanvas){
+      var rect=flyCanvas.getBoundingClientRect();
+      var x=clientX-rect.left;
+      if(x<30) x=30; if(x>rect.width-30) x=rect.width-30;
+      FLY.player.x=x;
+    }
+  }
+})();
+
+/* 初始化 */
+function init(){
+  refreshMenu();
+}
+init();
+
+/* 全局触摸音效初始化 */
+document.addEventListener('touchstart', function once(){ ensureAudio(); document.removeEventListener('touchstart', once); }, {passive:true});
+document.addEventListener('click', function once(){ ensureAudio(); document.removeEventListener('click', once); }, {passive:true});
+
+/* =====================================================
+   自测模式：?selftest=500  →  运行 500×4 科出题逻辑，
+   检查选项数量/唯一性/答案越界，把结果写到页面
+===================================================== */
+var sm = (window.location.search||'').match(/selftest=(\d+)/);
+if(sm){
+  (function(){
+    var n=parseInt(sm[1],10)||300, errors=[];
+    var subs=['math','chinese','english','mix'];
+    subs.forEach(function(sub){
+      for(var i=0;i<n;i++){
+        try{
+          var q=genQuestion(sub);
+          if(!q || !q.q || !Array.isArray(q.o) || q.o.length!==4){ errors.push(sub+' 选项数量异常: '+JSON.stringify(q)); continue; }
+          if(q.a<0 || q.a>3){ errors.push(sub+' 答案越界: '+q.a); continue; }
+          var seen={};
+          for(var k=0;k<q.o.length;k++){
+            var key=String(q.o[k]);
+            if(seen[key]){ errors.push(sub+' 重复选项 "'+key+'" 题面:'+q.q); break; }
+            seen[key]=1;
+          }
+          if(typeof q.o[q.a]==='undefined') errors.push(sub+' 答案索引无对应选项');
+        }catch(e){ errors.push(sub+' 抛错: '+e.message); }
+      }
+    });
+    var pre=document.createElement('pre');
+    pre.id='selftest';
+    pre.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111;color:#0f0;font-size:12px;padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;';
+    var total=subs.length*n;
+    pre.textContent = errors.length
+      ? ('ERRORS('+errors.length+'/'+total+'):\n'+errors.slice(0,30).join('\n'))
+      : ('ALL OK ('+total+' 题)');
+    document.body.appendChild(pre);
+  })();
+}
+
+})();
+</script>
+</body>
+</html>
