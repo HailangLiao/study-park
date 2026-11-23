@@ -541,10 +541,13 @@
           timerCost: 0
         };
       }else{
-        // 保底字段
+        // 保底字段（防御：老版本可能缺字段导致 undefined 判断异常）
         if(typeof d.ent.starPerMin !== 'number') d.ent.starPerMin = 5;
         if(typeof d.ent.dailyMaxMin !== 'number') d.ent.dailyMaxMin = 30;
         if(!d.ent.usedMin || typeof d.ent.usedMin !== 'object') d.ent.usedMin = {};
+        if(typeof d.ent.timerEnd !== 'number') d.ent.timerEnd = 0;
+        if(typeof d.ent.timerTotal !== 'number') d.ent.timerTotal = 0;
+        if(typeof d.ent.timerCost !== 'number') d.ent.timerCost = 0;
       }
       return d;
     }catch(e){ return fresh(); }
@@ -1131,7 +1134,9 @@
 
   // 确认框
   document.getElementById('cfOk').addEventListener('click', function(){
-    hideConfirm(); if(cfCb) cfCb();
+    var cb = cfCb;      // 先保存回调，再隐藏（hideConfirm 会清空 cfCb）
+    hideConfirm();
+    if(cb) cb();
   });
   document.getElementById('cfCancel').addEventListener('click', hideConfirm);
   document.getElementById('confirmOverlay').addEventListener('click', function(e){
@@ -1208,6 +1213,49 @@
 
   /* ============ 启动 ============ */
   refreshAll();
+
+  /* ============ 娱乐兑换端到端自测：?enttest=1 ============ */
+  var et = (window.location.search||'').match(/enttest=1/);
+  if(et){
+    (function(){
+      var out=[];
+      function O(msg){ out.push(msg); }
+
+      // 重置为测试数据：3 颗星
+      data.stars = 3;
+      data.ent = { starPerMin:5, dailyMaxMin:30, usedMin:{}, timerEnd:0, timerTotal:0, timerCost:0 };
+      save();
+      O('1) 初始 stars=' + data.stars);
+
+      // 广为兑换 5 分钟（需 1 星）
+      entExchange(5);
+      var ovlShown = document.getElementById('confirmOverlay').classList.contains('show');
+      O('2) 兑换弹出确认框: ' + ovlShown);
+
+      // 模拟点击"确定"
+      document.getElementById('cfOk').click();
+      var s_after = data.stars;
+      var t_end = data.ent.timerEnd;
+      var used = data.ent.usedMin || {};
+      O('3) 确认后 stars=' + s_after + ' (期待 2)');
+      O('4) timerEnd 已设置=' + (t_end>0 ? '是('+t_end+')':'否'));
+      O('4b) 今日已用分钟=' + (used[(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0'))]||0) + ' (期待 5)');
+
+      // 检查页面余额显示
+      O('5) 顶栏星星显示=' + document.getElementById('hdrStars').textContent);
+
+      // 模拟点击可嵌入游戏 → 应能打开（不再提示"没有娱乐时间"）
+      entOpenGame({ url:'https://www.roomrecess.com/', embed:true, n:'测试游戏' });
+      O('6) 兑换后面板 iframe 打开: ' + document.getElementById('entIframeBox').classList.contains('show'));
+      O('7) 当前iframe=' + document.getElementById('entFrame').getAttribute('src'));
+
+      var pre=document.createElement('pre');
+      pre.id='enttest';
+      pre.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#111;color:#0f0;font-size:12px;padding:8px;white-space:pre-wrap;';
+      pre.textContent=out.join('\n');
+      document.body.appendChild(pre);
+    })();
+  }
 })();
 </script>
 </body>
