@@ -397,14 +397,18 @@
 
       <div id="entGamesBox"></div>
 
-      <!-- 页内嵌入的游戏 -->
+      <!-- 动画屋 -->
+      <h2 class="sec-title" style="margin-top:16px;">🎬 动画屋 <small>看动画也要用星星兑换时间哦</small></h2>
+      <div id="entVideoBox"></div>
+
+      <!-- 页内嵌入的游戏/动画 -->
       <div id="entIframeBox">
         <div class="iframe-head">
-          <span class="ig-n" id="ifName">游戏</span>
-          <button class="ig-close" id="ifClose">✕ 关闭游戏</button>
+          <span class="ig-n" id="ifName">内容</span>
+          <button class="ig-close" id="ifClose">✕ 关闭</button>
         </div>
         <div class="iframe-wrap"><iframe id="entFrame" loading="lazy"></iframe></div>
-        <div class="ent-warn" style="margin-top:10px;">⏱️ 本游戏在页面内播放，娱乐时间到会自动关闭。</div>
+        <div class="ent-warn" style="margin-top:10px;">⏱️ 本内容在页面内播放，娱乐时间到会自动关闭。</div>
       </div>
 
       <div class="ent-warn">
@@ -862,6 +866,18 @@
     { e:'🌌', n:'Funbrain', d:'数学/阅读/科学/拼写游戏与电子书', url:'https://www.funbrain.com/', embed:true }
   ];
 
+  /* 动画屋：B站官方外链播放器（可直接嵌入，关闭弹幕 danmaku=0）
+     全部为家长审核通过的少儿向内容 */
+  var ENT_VIDEOS = [
+    { e:'🐵', n:'大闹天宫（4K修复版）', d:'上海美术电影制片厂经典 · 孙悟空大闹天宫', bvid:'BV1iY4y1Z7pJ' },
+    { e:'🐵', n:'大闹天宫 上集', d:'1961 年经典国漫，孙悟空花果山水帘洞', bvid:'BV1Gk4y1t7pB' },
+    { e:'🏮', n:'中国唱诗班·元日', d:'古诗动画，讲春节年味（5分钟）', bvid:'BV17b411Y7ZZ' },
+    { e:'🔧', n:'螺丝钉 第五季', d:'俄罗斯经典科普动画，日常小知识', bvid:'BV1eygmeyERi' },
+    { e:'🔬', n:'儿童科普动画合集', d:'128 集科普启蒙：地理/科学/天文/恐龙', bvid:'BV1RUBPYgEGc' },
+    { e:'🔤', n:'一年级·汉语拼音', d:'拼音字母表跟读示范（学习向）', bvid:'BV1Ny1pBDEEa' },
+    { e:'🐒', n:'西游记 儿童版', d:'经典《西游记》儿童版 100 集（合集长片）', bvid:'BV1ki4y1T73J' }
+  ];
+
   /* 今日已用娱乐分钟 */
   function entUsedToday(){
     var key = todayStr();
@@ -1000,6 +1016,23 @@
     });
     gb.appendChild(grid);
 
+    // 动画屋列表
+    var vb = document.getElementById('entVideoBox');
+    vb.innerHTML = '';
+    var vgrid = document.createElement('div');
+    vgrid.className='ent-games';
+    ENT_VIDEOS.forEach(function(v){
+      var a=document.createElement('a');
+      a.className='ent-game ent-video';
+      a.dataset.bvid=v.bvid;
+      a.dataset.vname=v.n;
+      a.href='javascript:void(0)';
+      a.innerHTML='<div class="gi">'+v.e+'</div><div class="gn">'+esc(v.n)+'</div><div class="gd">'+esc(v.d)+'<br><b style="color:#e5533d;">▶ B站播放</b></div>';
+      if(entCurrentVid===v.bvid) a.classList.add('playing');
+      vgrid.appendChild(a);
+    });
+    vb.appendChild(vgrid);
+
     // 倒计时状态
     if(running){
       document.getElementById('entCountdown').style.display='block';
@@ -1031,8 +1064,25 @@
   }
   function entCloseIframe(){
     entCurrentUrl='';
+    entCurrentVid='';
     document.getElementById('entIframeBox').classList.remove('show');
     document.getElementById('entFrame').src='about:blank';
+    renderEnt();
+  }
+
+  /* 动画屋播放（B站外链播放器，关闭弹幕） */
+  var entCurrentVid='';
+  function entOpenVideo(v){
+    if(!data.ent.timerEnd || data.ent.timerEnd<=Date.now()){
+      toast('⏰ 没有娱乐时间啦，先用星星兑换吧！');
+      showPage('ent');
+      return;
+    }
+    entCurrentVid=v.bvid;
+    document.getElementById('ifName').textContent='🎬 '+v.n;
+    // B站外链播放器：关闭弹幕 danmaku=0，限制自动播放参数
+    document.getElementById('entFrame').src='https://player.bilibili.com/player.html?bvid='+v.bvid+'&danmaku=0&autoplay=1';
+    document.getElementById('entIframeBox').classList.add('show');
     renderEnt();
   }
 
@@ -1044,6 +1094,16 @@
     ENT_GAMES.forEach(function(x){ if(x.url===url) g=x; });
     if(!g) return;
     entOpenGame(g);
+  });
+
+  /* 动画卡片点击：委托处理 */
+  document.getElementById('entVideoBox').addEventListener('click', function(e){
+    var a=e.target.closest('.ent-video'); if(!a) return;
+    var bvid=a.dataset.bvid;
+    var v=null;
+    ENT_VIDEOS.forEach(function(x){ if(x.bvid===bvid) v=x; });
+    if(!v) return;
+    entOpenVideo(v);
   });
   document.getElementById('ifClose').addEventListener('click', entCloseIframe);
 
