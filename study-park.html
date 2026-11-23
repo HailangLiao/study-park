@@ -564,7 +564,8 @@
           usedMin: {},
           timerEnd: 0,
           timerTotal: 0,
-          timerCost: 0
+          timerCost: 0,
+          videoPos: {}     // bvid -> 上次看到秒数（续播）
         };
       }else{
         // 保底字段（防御：老版本可能缺字段导致 undefined 判断异常）
@@ -574,6 +575,7 @@
         if(typeof d.ent.timerEnd !== 'number') d.ent.timerEnd = 0;
         if(typeof d.ent.timerTotal !== 'number') d.ent.timerTotal = 0;
         if(typeof d.ent.timerCost !== 'number') d.ent.timerCost = 0;
+        if(!d.ent.videoPos || typeof d.ent.videoPos !== 'object') d.ent.videoPos = {};
       }
       return d;
     }catch(e){ return fresh(); }
@@ -593,12 +595,19 @@
         usedMin: {},       // "YYYY-MM-DD" -> 已兑换分钟数
         timerEnd: 0,       // 倒计时结束的毫秒时间戳（0=无）
         timerTotal: 0,     // 本次兑换总分钟
-        timerCost: 0       // 本次兑换花的星
+        timerCost: 0,      // 本次兑换花的星
+        videoPos: {}       // bvid -> 上次看到秒数（续播）
       }
     };
   }
   var data = load();
-  function save(){ localStorage.setItem('studyPark.v1', JSON.stringify(data)); }
+  function save(){
+    // 防御：确保关键字段存在（避免旧数据/异常覆盖导致读取崩溃）
+    if(!data.ent || typeof data.ent !== 'object') data.ent = {};
+    if(!data.ent.videoPos || typeof data.ent.videoPos !== 'object') data.ent.videoPos = {};
+    if(!data.ent.usedMin || typeof data.ent.usedMin !== 'object') data.ent.usedMin = {};
+    localStorage.setItem('studyPark.v1', JSON.stringify(data));
+  }
 
   /* ============ 日期工具 ============ */
   function pad(n){ return n < 10 ? '0'+n : ''+n; }
@@ -867,15 +876,20 @@
   ];
 
   /* 动画屋：B站官方外链播放器（可直接嵌入，关闭弹幕 danmaku=0）
-     全部为家长审核通过的少儿向内容 */
+     全部为家长审核通过的少儿向内容；dur=秒数（用于续播判断） */
   var ENT_VIDEOS = [
-    { e:'🐵', n:'大闹天宫（4K修复版）', d:'上海美术电影制片厂经典 · 孙悟空大闹天宫', bvid:'BV1iY4y1Z7pJ' },
-    { e:'🐵', n:'大闹天宫 上集', d:'1961 年经典国漫，孙悟空花果山水帘洞', bvid:'BV1Gk4y1t7pB' },
-    { e:'🏮', n:'中国唱诗班·元日', d:'古诗动画，讲春节年味（5分钟）', bvid:'BV17b411Y7ZZ' },
-    { e:'🔧', n:'螺丝钉 第五季', d:'俄罗斯经典科普动画，日常小知识', bvid:'BV1eygmeyERi' },
-    { e:'🔬', n:'儿童科普动画合集', d:'128 集科普启蒙：地理/科学/天文/恐龙', bvid:'BV1RUBPYgEGc' },
-    { e:'🔤', n:'一年级·汉语拼音', d:'拼音字母表跟读示范（学习向）', bvid:'BV1Ny1pBDEEa' },
-    { e:'🐒', n:'西游记 儿童版', d:'经典《西游记》儿童版 100 集（合集长片）', bvid:'BV1ki4y1T73J' }
+    { e:'🐵', n:'大闹天宫（4K修复版）', d:'上海美术电影制片厂经典 · 孙悟空大闹天宫', bvid:'BV1iY4y1Z7pJ', dur:6755 },
+    { e:'🐵', n:'大闹天宫 上集', d:'1961 年经典国漫，孙悟空花果山水帘洞', bvid:'BV1Gk4y1t7pB', dur:2609 },
+    { e:'🏮', n:'中国唱诗班·元日', d:'古诗动画，讲春节年味（5分钟）', bvid:'BV17b411Y7ZZ', dur:351 },
+    { e:'🔧', n:'螺丝钉 第五季', d:'俄罗斯经典科普动画，日常小知识', bvid:'BV1eygmeyERi', dur:320 },
+    { e:'🔬', n:'儿童科普动画合集', d:'128 集科普启蒙：地理/科学/天文/恐龙', bvid:'BV1RUBPYgEGc', dur:3023 },
+    { e:'🔤', n:'一年级·汉语拼音', d:'拼音字母表跟读示范（学习向）', bvid:'BV1Ny1pBDEEa', dur:615 },
+    { e:'🐒', n:'西游记 儿童版', d:'经典《西游记》儿童版 100 集（合集长片）', bvid:'BV1ki4y1T73J', dur:5275 },
+    { e:'⚡', n:'提欧奥特曼 第01集（中文配音）', d:'一集完整，中文配音的奥特曼正片', bvid:'BV16gHm64EBK', dur:1405 },
+    { e:'🦸', n:'初代奥特曼 4K 全39集', d:'1966 年经典，原音中字，播放33万', bvid:'BV1dFByByE1m', dur:129407 },
+    { e:'🐉', n:'奶龙十分钟合集', d:'可爱的小恐龙奶龙搞笑合集（10分钟）', bvid:'BV1hBfFBYEpA', dur:604 },
+    { e:'🔨', n:'开心锤锤合集1（第1-10集）', d:'乐观少年锤锤的搞笑日常（15分钟）', bvid:'BV1mzV3zaE9B', dur:895 },
+    { e:'🚀', n:'儿童科普纪录片·宇宙篇', d:'212 集宇宙科普纪录片（超长合集）', bvid:'BV1pXtqegE1V', dur:39642 }
   ];
 
   /* 今日已用娱乐分钟 */
@@ -1027,7 +1041,8 @@
       a.dataset.bvid=v.bvid;
       a.dataset.vname=v.n;
       a.href='javascript:void(0)';
-      a.innerHTML='<div class="gi">'+v.e+'</div><div class="gn">'+esc(v.n)+'</div><div class="gd">'+esc(v.d)+'<br><b style="color:#e5533d;">▶ B站播放</b></div>';
+      var posHtml = entVidPosLabel(v.bvid, v.dur);
+      a.innerHTML='<div class="gi">'+v.e+'</div><div class="gn">'+esc(v.n)+'</div><div class="gd">'+esc(v.d)+'<br>'+(posHtml ? '<b style="color:#3a9a5c;">'+posHtml+'</b>' : '<b style="color:#e5533d;">▶ B站播放</b>')+'</div>';
       if(entCurrentVid===v.bvid) a.classList.add('playing');
       vgrid.appendChild(a);
     });
@@ -1063,6 +1078,8 @@
     renderEnt();
   }
   function entCloseIframe(){
+    // 先保存观看进度
+    entStopVideoPos();
     entCurrentUrl='';
     entCurrentVid='';
     document.getElementById('entIframeBox').classList.remove('show');
@@ -1070,8 +1087,12 @@
     renderEnt();
   }
 
-  /* 动画屋播放（B站外链播放器，关闭弹幕） */
+  /* 动画屋播放（B站外链播放器，关闭弹幕 + 续播） */
   var entCurrentVid='';
+  var entPosTimer=null;      // 进度心跳定时器
+  var entPlayStartAt=0;      // 本次开始播放的时间戳
+  var entPlayStartPos=0;     // 本次开始时的进度（秒）
+
   function entOpenVideo(v){
     if(!data.ent.timerEnd || data.ent.timerEnd<=Date.now()){
       toast('⏰ 没有娱乐时间啦，先用星星兑换吧！');
@@ -1080,10 +1101,60 @@
     }
     entCurrentVid=v.bvid;
     document.getElementById('ifName').textContent='🎬 '+v.n;
-    // B站外链播放器：关闭弹幕 danmaku=0，限制自动播放参数
-    document.getElementById('entFrame').src='https://player.bilibili.com/player.html?bvid='+v.bvid+'&danmaku=0&autoplay=1';
+
+    // 续播：读上次进度
+    var prevPos = (data.ent.videoPos||{})[v.bvid] || 0;
+    if(prevPos < 0) prevPos = 0;
+    // 若上次看完（>=99%），重头开始
+    var total = v.dur || 0;
+    if(total>0 && prevPos >= total*0.95) prevPos = 0;
+
+    entPlayStartPos = prevPos;
+    entPlayStartAt = Date.now();
+    // B站外链播放器：关闭弹幕 danmaku=0，自动播放，t= 从第 prevPos 秒开始
+    var src = 'https://player.bilibili.com/player.html?bvid='+v.bvid+'&danmaku=0&autoplay=1';
+    if(prevPos>0) src += '&t='+Math.floor(prevPos);
+    document.getElementById('entFrame').src = src;
     document.getElementById('entIframeBox').classList.add('show');
+
+    // 心跳：每 10 秒估算观看进度并保存（跨域无法读真实进度，按实际播放时间累计）
+    if(entPosTimer) clearInterval(entPosTimer);
+    entPosTimer = setInterval(function(){
+      var est = entPlayStartPos + (Date.now()-entPlayStartAt)/1000;
+      if(est > 0){
+        data.ent.videoPos[entCurrentVid] = Math.floor(est);
+        save();
+      }
+    }, 10000);
+
     renderEnt();
+  }
+
+  function entStopVideoPos(){
+    if(entPosTimer){ clearInterval(entPosTimer); entPosTimer=null; }
+    if(entCurrentVid){
+      var est = entPlayStartPos + (Date.now()-entPlayStartAt)/1000;
+      // 只在确实看了才存（>5秒）
+      if(est > 5){
+        data.ent.videoPos[entCurrentVid] = Math.floor(est);
+        save();
+      }
+    }
+  }
+
+  /* 显示某个视频的观看进度 */
+  function entVidPosLabel(bvid, dur){
+    var pos = (data.ent.videoPos||{})[bvid] || 0;
+    if(!pos) return '';
+    var label = '';
+    if(dur && pos >= dur*0.95) label='✅ 已看完';
+    else label='▶ 续看 '+fmtTime(pos)+(dur?' / '+fmtTime(dur):'');
+    return label;
+  }
+  function fmtTime(s){
+    s=Math.floor(s||0);
+    var m=Math.floor(s/60), sec=s%60;
+    return m+':'+(sec<10?'0'+sec:sec);
   }
 
   /* 游戏卡片点击：委托处理 */
@@ -1303,9 +1374,9 @@
       var out=[];
       function O(msg){ out.push(msg); }
 
-      // 重置为测试数据：3 颗星
+      // 重置为测试数据：3 颗星（保留 videoPos 字段，防 undefined）
       data.stars = 3;
-      data.ent = { starPerMin:5, dailyMaxMin:30, usedMin:{}, timerEnd:0, timerTotal:0, timerCost:0 };
+      data.ent = { starPerMin:5, dailyMaxMin:30, usedMin:{}, timerEnd:0, timerTotal:0, timerCost:0, videoPos:{} };
       save();
       O('1) 初始 stars=' + data.stars);
 
@@ -1330,6 +1401,39 @@
       entOpenGame({ url:'https://www.roomrecess.com/', embed:true, n:'测试游戏' });
       O('6) 兑换后面板 iframe 打开: ' + document.getElementById('entIframeBox').classList.contains('show'));
       O('7) 当前iframe=' + document.getElementById('entFrame').getAttribute('src'));
+
+      // ---- 续播自测 ----
+      O('8) 续播自测 ----');
+      // 先关掉游戏 iframe，准备测试视频
+      entCloseIframe();
+      // 制造一个"已看到 2分30秒"的进度
+      data.ent.videoPos['BV17b411Y7ZZ'] = 150;
+      save();
+      // 打开视频（有进度 → URL 应带 t=150）
+      var v = ENT_VIDEOS[2]; // 元日
+      entOpenVideo(v);
+      var src1 = document.getElementById('entFrame').getAttribute('src');
+      O('9) 打开有进度的视频: t=150 在URL中? ' + (src1.indexOf('t=150')>=0));
+      O('10) URL=' + src1);
+      // 模拟心跳一下（推进 30 秒）
+      data.ent.videoPos['BV17b411Y7ZZ'] = 180;
+      save();
+      // 重开一次（模拟"上次看到 180 秒后再次打开"）：
+      // 清掉当前播放计时状态，避免虚拟时钟过快导致估算覆盖保存值
+      if(entPosTimer){ clearInterval(entPosTimer); entPosTimer=null; }
+      entCurrentVid='';
+      entPlayStartPos=0;
+      entOpenVideo(v);
+      var src2 = document.getElementById('entFrame').getAttribute('src');
+      O('11) 重开后 t=180 在URL中? ' + (src2.indexOf('t=180')>=0));
+      // 无关视频不应带 t
+      data.ent.videoPos['BV1Gk4y1t7pB'] = 0;
+      entCloseIframe();
+      var v2 = ENT_VIDEOS[1];
+      entOpenVideo(v2);
+      var src3 = document.getElementById('entFrame').getAttribute('src');
+      O('12) 无进度视频不带t=? ' + (src3.indexOf('&t=')<0 && src3.indexOf('?t=')<0));
+      entStopVideoPos();
 
       var pre=document.createElement('pre');
       pre.id='enttest';
