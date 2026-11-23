@@ -72,7 +72,7 @@
   .hero .hello{ font-size:22px; font-weight:800; margin:0 0 4px; }
   .hero .sub{ font-size:14px; opacity:.95; margin:0; line-height:1.5; }
   /* ---------- 游戏卡片 ---------- */
-  .games{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .games{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .game{
     background:var(--card); border-radius:var(--radius);
     padding:16px 10px; text-align:center; cursor:pointer;
@@ -91,6 +91,10 @@
   .g-cc .tag{ background:var(--gold); }
   .g-dungeon .ico{ filter:drop-shadow(0 3px 4px rgba(167,139,250,.7)); }
   .g-dungeon .tag{ background:var(--purple); }
+  .g-battle .ico{ filter:drop-shadow(0 3px 4px rgba(255,122,122,.7)); }
+  .g-battle .tag{ background:var(--red); }
+  .g-fly .ico{ filter:drop-shadow(0 3px 4px rgba(111,183,255,.7)); }
+  .g-fly .tag{ background:var(--blue); }
   .g-math .ico{ filter:drop-shadow(0 3px 4px rgba(62,207,160,.6)); }
   .g-math .tag{ background:var(--green); }
   .g-eng .ico{ filter:drop-shadow(0 3px 4px rgba(111,183,255,.7)); }
@@ -251,6 +255,16 @@
           <span class="ico">🗺️</span>
           <span class="name">秘境迷宫</span>
           <span class="tag">探险闯关·不淘汰</span>
+        </a>
+        <a class="game g-battle" data-warn="怪兽大作战" href="https://HailangLiao.github.io/study-park/monster-battle.html" target="_blank" rel="noopener">
+          <span class="ico">⚔️</span>
+          <span class="name">怪兽大作战</span>
+          <span class="tag">答题打怪·可复活</span>
+        </a>
+        <a class="game g-fly" data-warn="星际飞行" href="https://HailangLiao.github.io/study-park/monster-battle.html?mode=fly" target="_blank" rel="noopener">
+          <span class="ico">✈️</span>
+          <span class="name">星际飞行</span>
+          <span class="tag">打飞机·答题复活</span>
         </a>
         <a class="game g-cc" data-warn="聪聪学堂" href="https://d3nmsqi4n72idj.cloudfront.net/" target="_blank" rel="noopener">
           <span class="ico">📚</span>

@@ -199,7 +199,7 @@
     </div>
     <button class="start-btn" id="btnStart">开始战斗 ▶</button>
     <div class="help-box">
-      💡 <b>怪兽大作战</b>：答对砍怪兽，答错被咬，连续答对3题会<b>暴击</b>！生命没了可以<b>挑战复活</b>（连对3题）。<br>
+      💡 <b>怪兽大作战</b>：答对砍怪兽，答错被咬，连续答对3题会<b>暴击</b>！生命没了还能<b>答题复活</b>（答对3题，答错不清零，次数不限）！<br>
       💡 <b>星际飞行</b>：手指拖动飞机躲陨石、打敌机。坠机后<b>做对题才能复活</b>！<br>
       💡 每场战斗结束赚到的金币会自动换成 ⭐ 加到「学习乐园」里。
     </div>
@@ -616,6 +616,18 @@ function playerAttack(level){ return 13 + Math.floor((level-1)*0.8); }
 var pendingMode='battle';
 var battleMode='battle';
 var flyMode='fly';
+/* 支持 ?mode=fly 直接进星际飞行 / ?mode=battle 直接进怪兽大作战（自动开始） */
+(function(){
+  var m=(window.location.search||'').match(/[?&]mode=([^&]+)/);
+  if(m && m[1]==='fly') pendingMode='fly';
+  if(m){ // 直接进游戏，跳过菜单
+    setTimeout(function(){
+      ensureAudio();
+      if(pendingMode==='battle') startBattle();
+      else startFly();
+    }, 100);
+  }
+})();
 document.getElementById('btnStart').addEventListener('click', function(){
   ensureAudio();
   if(pendingMode==='battle') startBattle();
@@ -755,11 +767,8 @@ function endBattle(victory){
 }
 function onPlayerDown(){
   BATTLE.running=false;
-  if(BATTLE.reviveUsed < BATTLE.MAX_REVIVE){
-    openRevive('battle');
-  }else{
-    endBattle(false);
-  }
+  // 复活不限次数：孩子永远有继续玩的机会（答对3题即可复活）
+  openRevive('battle');
 }
 document.getElementById('btnBackBattle').addEventListener('click', function(){
   if(BATTLE.running) endBattle(false);
@@ -767,13 +776,13 @@ document.getElementById('btnBackBattle').addEventListener('click', function(){
 });
 
 /* =====================================================
-   复活挑战（共用：连对3题复活）
+   复活挑战（共用：答对3题即可复活，答错不清零，不限次数）
 ===================================================== */
 var REVIVE={ src:'battle', need:3, got:0, q:null, locked:false };
 function openRevive(src){
   REVIVE.src=src; REVIVE.need=3; REVIVE.got=0; REVIVE.locked=false;
   document.getElementById('revProg').textContent='已答对 0 / '+REVIVE.need;
-  document.getElementById('revHint').innerHTML='连续答对 <b>'+REVIVE.need+'</b> 题就能复活一半生命';
+  document.getElementById('revHint').innerHTML='答对 <b>'+REVIVE.need+'</b> 题就能复活一半生命（答错没关系，继续加油！）';
   document.getElementById('revTitle').textContent = src==='battle'?'😵 你倒下了……':'💥 飞机坠落了……';
   askReviveQ();
   document.getElementById('ovlRevive').classList.add('show');
@@ -811,8 +820,9 @@ document.getElementById('revOpts').addEventListener('click', function(e){
   }else{
     b.classList.add('wrong');
     sfxBad();
-    document.getElementById('revProg').textContent='答错了，重头开始（0 / '+REVIVE.need+'）';
-    setTimeout(function(){ REVIVE.got=0; askReviveQ(); }, 600);
+    // 答错不清零：只是不增加计数，继续加油！
+    document.getElementById('revProg').textContent='答错了，再加把劲！已答对 '+REVIVE.got+' / '+REVIVE.need;
+    setTimeout(function(){ askReviveQ(); }, 600);
   }
 });
 function reviveSuccess(){
