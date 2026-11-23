@@ -498,6 +498,7 @@ function viewportOffset(){
 }
 
 function startLevel(level){
+  QMODAL.off=false;   // 修复：过关/回菜单后必须解锁，否则下一关点不动
   LEVEL=level;
   var data=buildLevel(level);
   MAZE={ cols:data.cols, rows:data.rows, grid:data.grid, start:data.start, exit:data.exit, doors:data.doors, chests:data.chests, player:[1,1] };
@@ -770,6 +771,28 @@ if(sm){
         if(d.grid[d.exit[0]][d.exit[1]]!==0) errors.push('终点墙 lv'+lv);
       }catch(e){ errors.push('迷宫生成抛错 lv'+lv+':'+e.message); }
     }
+    // 端到端：模拟 过关 -> 点下一关(startLevel(2)) 后 QMODAL.off 必须为 false（修复 #2关点不动）
+    try{
+      startLevel(1);                 // 先开一关，保证 MAZE/QUESTS 就绪
+      QMODAL.off=true;               // 模拟 winLevel 的锁定
+      winLevel();                    // 过关（内部也会置 off=true）
+      document.getElementById('ovlWin').classList.remove('show');
+      startLevel(2);                 // 进入第二关
+      if(QMODAL.off) errors.push('E2E: 第二关 QMODAL.off 仍为 true（点击会没反应）');
+      var before=MAZE.player[0]+','+MAZE.player[1];
+      // 找一个可走方向模拟移动
+      var moved=false;
+      [[-1,0],[0,-1],[1,0],[0,1]].forEach(function(dd){
+        if(moved) return;
+        var rr=MAZE.player[0]+dd[0], cc=MAZE.player[1]+dd[1];
+        if(rr>=0&&rr<MAZE.rows&&cc>=0&&cc<MAZE.cols&&MAZE.grid[rr][cc]===0&&!(rr===MAZE.exit[0]&&cc===MAZE.exit[1])){
+          var qk=rr+','+cc;
+          if(!(QUESTS[qk]&&QUESTS[qk].type==='door')){ tryMove(dd[0],dd[1]); moved=true; }
+        }
+      });
+      if(moved && MAZE.player[0]+','+MAZE.player[1]===before) errors.push('E2E: 第二关无法移动');
+      document.getElementById('ovlWin').classList.remove('show');
+    }catch(e){ errors.push('E2E 第二关: '+e.message); }
     var pre=document.createElement('pre');
     pre.id='selftest';
     pre.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111;color:#0f0;font-size:12px;padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;';
