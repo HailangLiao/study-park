@@ -207,6 +207,61 @@
     padding:12px; font-size:13px; font-family:Menlo,Consolas,monospace;
     margin-bottom:12px; resize:vertical; background:#FDFAF3;
   }
+  /* ---------- 娱乐广场 ---------- */
+  .ent-time{ text-align:center; padding:6px 0 10px; }
+  .ent-time .big{ font-size:42px; font-weight:900; color:var(--blue); line-height:1; }
+  .ent-time .l{ color:var(--sub); font-size:13px; margin-top:4px; }
+  .ent-actions{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .ent-action{
+    background:#fff; border-radius:18px; padding:14px; text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.06); cursor:pointer; transition:transform .15s;
+    border:3px solid transparent;
+  }
+  .ent-action:active{ transform:scale(.95); }
+  .ent-action .ai{ font-size:34px; }
+  .ent-action .an{ font-weight:800; font-size:15px; margin:4px 0 2px; }
+  .ent-action .ad{ font-size:12px; color:var(--sub); }
+  .ent-action.exch{ border-color:var(--blue); background:#F2F9FF; }
+  .ent-action.timeron{ border-color:var(--gold); background:#FFF7E8; }
+  .ent-countdown{
+    background:linear-gradient(135deg,#6FB7FF,#4a9df0); color:#fff;
+    border-radius:18px; padding:16px; text-align:center; margin-bottom:16px;
+    box-shadow:0 6px 16px rgba(111,183,255,.4);
+  }
+  .ent-countdown .cd-num{ font-size:44px; font-weight:900; line-height:1; }
+  .ent-countdown .cd-l{ font-size:13px; opacity:.9; margin-top:6px; }
+  .ent-countdown .cd-stop{
+    margin-top:10px; background:rgba(255,255,255,.9); color:#4a9df0;
+    border:none; border-radius:999px; padding:10px 22px; font-size:14px; font-weight:900; cursor:pointer;
+  }
+  .ent-games{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ent-game{
+    background:#fff; border-radius:18px; padding:14px 12px; text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.06); cursor:pointer; transition:transform .15s;
+    text-decoration:none; color:var(--ink); border:3px solid transparent;
+  }
+  .ent-game:active{ transform:scale(.95); }
+  .ent-game.playing{ border-color:var(--gold); background:#FFF9EE; }
+  .ent-game .gi{ font-size:36px; }
+  .ent-game .gn{ font-weight:800; font-size:14px; margin:4px 0 2px; }
+  .ent-game .gd{ font-size:11px; color:var(--sub); line-height:1.4; }
+  .ent-warn{ background:#EAF6FF; border-radius:14px; padding:12px 14px; font-size:13px; color:#2f6fa8; line-height:1.7; margin-top:14px; }
+  .ent-warn b{ color:#1f5a8c; }
+  /* 页内嵌入游戏 */
+  #entIframeBox{ display:none; margin-top:14px; }
+  #entIframeBox.show{ display:block; }
+  .iframe-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .iframe-head .ig-n{ font-weight:800; font-size:15px; flex:1; }
+  .iframe-head .ig-close{
+    background:var(--red); color:#fff; border:none; border-radius:999px;
+    padding:6px 14px; font-size:13px; font-weight:800; cursor:pointer;
+  }
+  .iframe-wrap{
+    position:relative; width:100%; height:0; padding-bottom:130%; border-radius:18px; overflow:hidden;
+    background:#1a1a2e; box-shadow:0 8px 24px rgba(0,0,0,.2);
+  }
+  .iframe-wrap iframe{ position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+
   /* ---------- 飞星动画 ---------- */
   @keyframes fly{
     0%{ transform:translateY(0) scale(1); opacity:1; }
@@ -251,17 +306,17 @@
     <section>
       <h2 class="sec-title">🎮 去玩吧 <small>学完按左上角返回</small></h2>
       <div class="games">
-        <a class="game g-dungeon" data-warn="秘境迷宫" href="https://HailangLiao.github.io/study-park/dungeon-quest.html" target="_blank" rel="noopener">
+        <a class="game g-dungeon" data-warn="秘境迷宫" href="https://HailangLiao.github.io/study-park/games/dungeon-quest.html" target="_blank" rel="noopener">
           <span class="ico">🗺️</span>
           <span class="name">秘境迷宫</span>
           <span class="tag">探险闯关·不淘汰</span>
         </a>
-        <a class="game g-battle" data-warn="怪兽大作战" href="https://HailangLiao.github.io/study-park/monster-battle.html" target="_blank" rel="noopener">
+        <a class="game g-battle" data-warn="怪兽大作战" href="https://HailangLiao.github.io/study-park/games/monster-battle.html" target="_blank" rel="noopener">
           <span class="ico">⚔️</span>
           <span class="name">怪兽大作战</span>
           <span class="tag">答题打怪·可复活</span>
         </a>
-        <a class="game g-fly" data-warn="星际飞行" href="https://HailangLiao.github.io/study-park/monster-battle.html?mode=fly" target="_blank" rel="noopener">
+        <a class="game g-fly" data-warn="星际飞行" href="https://HailangLiao.github.io/study-park/games/monster-battle.html?mode=fly" target="_blank" rel="noopener">
           <span class="ico">✈️</span>
           <span class="name">星际飞行</span>
           <span class="tag">打飞机·答题复活</span>
@@ -271,7 +326,7 @@
           <span class="name">聪聪学堂</span>
           <span class="tag">语文·数学·英语</span>
         </a>
-        <a class="game g-math" data-warn="数学对战" href="https://HailangLiao.github.io/study-park/math-battle.html" target="_blank" rel="noopener">
+        <a class="game g-math" data-warn="数学对战" href="https://HailangLiao.github.io/study-park/games/math-battle.html" target="_blank" rel="noopener">
           <span class="ico">⚔️</span>
           <span class="name">数学对战</span>
           <span class="tag">口算 PK 60秒</span>
@@ -294,6 +349,47 @@
       <h2 class="sec-title">📅 本周打卡</h2>
       <div class="weekbar" id="weekBar"></div>
     </section>
+  </section>
+
+  <!-- 娱乐广场 -->
+  <section id="pageEnt" class="hidden">
+    <div class="card">
+      <h2 class="sec-title">🎮 娱乐广场</h2>
+      <p style="color:var(--sub);font-size:13px;margin:-4px 0 12px;">用学习攒下的 ⭐ 兑换放松时间！学习永远免费，娱乐要用星星换～</p>
+
+      <div class="ent-time">
+        <div class="big" id="entBalance">0 ⭐</div>
+        <div class="l">今天可兑换 <span id="entTodayLimit">—</span> 分钟（家长可调）</div>
+      </div>
+
+      <div class="ent-actions">
+        <!-- 动态填入：兑换按钮/继续计时 -->
+      </div>
+
+      <!-- 倒计时面板 -->
+      <div class="ent-countdown" id="entCountdown" style="display:none;">
+        <div class="cd-num" id="cdNum">0:00</div>
+        <div class="cd-l" id="cdLabel">娱乐时间进行中……到点就要回学习乐园啦</div>
+        <button class="cd-stop" id="cdStop">⏹ 提前结束</button>
+      </div>
+
+      <div id="entGamesBox"></div>
+
+      <!-- 页内嵌入的游戏 -->
+      <div id="entIframeBox">
+        <div class="iframe-head">
+          <span class="ig-n" id="ifName">游戏</span>
+          <button class="ig-close" id="ifClose">✕ 关闭游戏</button>
+        </div>
+        <div class="iframe-wrap"><iframe id="entFrame" loading="lazy"></iframe></div>
+        <div class="ent-warn" style="margin-top:10px;">⏱️ 本游戏在页面内播放，娱乐时间到会自动关闭。</div>
+      </div>
+
+      <div class="ent-warn">
+        💡 <b>兑换规则</b>：<span id="entRuleText">1 颗星 = 5 分钟</span>。兑换后倒计时开始，
+        时间到了自动提示回学习乐园。所有游戏网站均无需注册、免费访问，由家长提前挑选确认。
+      </div>
+    </div>
   </section>
 
   <!-- 兑换页 -->
@@ -362,6 +458,7 @@
 
 <nav>
   <button data-page="home" class="active"><span class="ni">🏠</span>首页</button>
+  <button data-page="ent" class="ent-nav"><span class="ni">🎮</span>娱乐广场</button>
   <button data-page="reward"><span class="ni">⭐</span>星星兑换</button>
   <button data-page="parent"><span class="ni">🔧</span>家长</button>
 </nav>
@@ -429,9 +526,26 @@
   function load(){
     try{
       var s = localStorage.getItem('studyPark.v1');
-      if(!s) return fresh();
-      var d = JSON.parse(s);
+      var d;
+      if(!s){ return fresh(); }
+      d = JSON.parse(s);
       if(!d || typeof d !== 'object') return fresh();
+      // 迁移：老数据没有 ent 字段时补全
+      if(!d.ent || typeof d.ent !== 'object'){
+        d.ent = {
+          starPerMin: 5,
+          dailyMaxMin: 30,
+          usedMin: {},
+          timerEnd: 0,
+          timerTotal: 0,
+          timerCost: 0
+        };
+      }else{
+        // 保底字段
+        if(typeof d.ent.starPerMin !== 'number') d.ent.starPerMin = 5;
+        if(typeof d.ent.dailyMaxMin !== 'number') d.ent.dailyMaxMin = 30;
+        if(!d.ent.usedMin || typeof d.ent.usedMin !== 'object') d.ent.usedMin = {};
+      }
       return d;
     }catch(e){ return fresh(); }
   }
@@ -443,7 +557,15 @@
       dailyMin:45,
       sound:1,
       days:{},       // "YYYY-Www" -> { "MM-DD": [true,false,false] }
-      logs:[]        // {at,name,cost}
+      logs:[],       // {at,name,cost}
+      ent: {          // 娱乐广场（新）
+        starPerMin: 5,     // 1 星 = 5 分钟
+        dailyMaxMin: 30,   // 每天最多可兑换 30 分钟
+        usedMin: {},       // "YYYY-MM-DD" -> 已兑换分钟数
+        timerEnd: 0,       // 倒计时结束的毫秒时间戳（0=无）
+        timerTotal: 0,     // 本次兑换总分钟
+        timerCost: 0       // 本次兑换花的星
+      }
     };
   }
   var data = load();
@@ -676,12 +798,14 @@
   function showPage(p){
     curPage=p;
     document.getElementById('pageHome').classList.toggle('hidden', p!=='home');
+    document.getElementById('pageEnt').classList.toggle('hidden', p!=='ent');
     document.getElementById('pageReward').classList.toggle('hidden', p!=='reward');
     document.getElementById('pageParent').classList.toggle('hidden', p!=='parent');
     document.querySelectorAll('nav button').forEach(function(b){
       b.classList.toggle('active', b.dataset.page===p);
     });
     if(p==='reward') renderRewards();
+    if(p==='ent') renderEnt();
     if(p==='parent'){
       if(!parentUnlocked){
         showPwd(); return;
@@ -700,11 +824,216 @@
     renderTaskEdits(); renderRewardEdits(); renderGrantList(); renderLog();
   }
 
+  /* ============ 娱乐广场 ============ */
+  /* 外部网页游戏库（全部免注册、免费；家长可自行增删）
+     embed: 可嵌入页内（到时自动关闭）/ false: 只能跳转新页 */
+  var ENT_GAMES = [
+    { e:'🎮', n:'RoomRecess 游戏屋', d:'160+ 款小学数学/阅读/拼写小游戏', url:'https://www.roomrecess.com/', embed:true },
+    { e:'⚔️', n:'口算王者', d:'口算闯关游戏，答对英雄出招打怪', url:'https://kousuanwang.cn', embed:true },
+    { e:'🌌', n:'Funbrain', d:'数学/阅读/科学/拼写游戏与电子书', url:'https://www.funbrain.com/', embed:true },
+    { e:'🧩', n:'17Yoo 益智游戏', d:'拼图/逻辑/识字/英语儿童游戏合集', url:'https://17yoo.cn', embed:true },
+    { e:'🧮', n:'Math Playground', d:'300+ 数学游戏（此站需另开窗口）', url:'https://www.mathplayground.com/math-games.html', embed:false },
+    { e:'📚', n:'聪聪学堂(知识版)', d:'语文数学英语单元练习，放松也合适（需另开）', url:'https://d3nmsqi4n72idj.cloudfront.net/', embed:false }
+  ];
+
+  /* 今日已用娱乐分钟 */
+  function entUsedToday(){
+    var key = todayStr();
+    return data.ent.usedMin[key] || 0;
+  }
+  /* 能否再兑换 */
+  function entCanExchange(){
+    return entUsedToday() < data.ent.dailyMaxMin;
+  }
+  function entRemainingMin(){
+    return Math.max(0, data.ent.dailyMaxMin - entUsedToday());
+  }
+  function starPerMin(){ return data.ent.starPerMin; }
+
+  /* 兑换 X 分钟（从星星扣） */
+  function entExchange(min){
+    var need = Math.ceil(min / starPerMin());  // 每 starPerMin 分钟 1 星
+    if(data.stars < need){
+      toast('⭐ 星星不够啦，先去学习赚星星吧！');
+      return;
+    }
+    var key = todayStr();
+    showConfirmHTML('🎮 兑换娱乐时间',
+      '用 <b>'+need+'</b> 颗星兑换 <b>'+min+'</b> 分钟娱乐时间<br>（今天已用 '+entUsedToday()+'/'+data.ent.dailyMaxMin+' 分钟）',
+      function(){
+        data.stars -= need;
+        data.ent.usedMin[key] = (data.ent.usedMin[key]||0) + min;
+        data.ent.timerCost = need;
+        data.ent.timerTotal = min;
+        data.ent.timerEnd = Date.now() + min*60000;
+        data.logs.push({
+          at: new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'),
+          name:'🎮 兑换娱乐 '+min+' 分钟', cost:need
+        });
+        save(); refreshStars();
+        renderEnt(); startEntCountdown(min);
+        toast('🎉 兑换成功！开始放松吧～');
+        for(var i=0;i<4;i++) flyStar();
+      }
+    );
+  }
+
+  /* 倒计时 */
+  var entTimerId = null;
+  function startEntCountdown(min){
+    if(entTimerId) clearInterval(entTimerId);
+    var el = document.getElementById('entCountdown');
+    el.style.display = 'block';
+    tickEntCountdown();
+    entTimerId = setInterval(tickEntCountdown, 1000);
+  }
+  function tickEntCountdown(){
+    var end = data.ent.timerEnd;
+    if(!end){ document.getElementById('entCountdown').style.display='none'; if(entTimerId){clearInterval(entTimerId);entTimerId=null;} return; }
+    var remain = Math.max(0, Math.floor((end - Date.now())/1000));
+    var m = Math.floor(remain/60), s = remain%60;
+    document.getElementById('cdNum').textContent = m+':'+ (s<10?'0'+s:s);
+    if(remain<=0){
+      clearInterval(entTimerId); entTimerId=null;
+      data.ent.timerEnd=0;
+      save();
+      document.getElementById('entCountdown').style.display='none';
+      // 强制关闭页内嵌入的游戏
+      entCloseIframe();
+      // 若在娱乐广场页，切回首页
+      if(curPage==='ent'){ showPage('home'); }
+      toast('⏰ 娱乐时间到！回到学习乐园吧～');
+    }
+  }
+  function entStopTimer(){
+    if(entTimerId){ clearInterval(entTimerId); entTimerId=null; }
+    data.ent.timerEnd=0;
+    save();
+    document.getElementById('entCountdown').style.display='none';
+    toast('已提前结束计时');
+    renderEnt();
+  }
+
+  /* 渲染娱乐广场 */
+  function renderEnt(){
+    document.getElementById('entBalance').textContent = data.stars+' ⭐';
+    document.getElementById('entRuleText').textContent = '1 颗星 = '+starPerMin()+' 分钟';
+    document.getElementById('entTodayLimit').textContent = entRemainingMin();
+
+    var actions = document.querySelector('.ent-actions');
+    actions.innerHTML = '';
+
+    // 兑换按钮（未满今天限额 & 无进行中计时）
+    var running = data.ent.timerEnd > Date.now();
+    if(!running){
+      var exch = document.createElement('div');
+      exch.className='ent-action exch';
+      exch.innerHTML =
+        '<div class="ai">⏱️</div>'+
+        '<div class="an">兑换娱乐时间</div>'+
+        '<div class="ad">'+( starPerMin() )+' 星 = '+starPerMin()*1+' 分钟 · 今天还能换 '+entRemainingMin()+' 分钟</div>';
+      exch.onclick=function(){ entExchange(starPerMin()*1); };
+      actions.appendChild(exch);
+      // 加一个 10 分钟档
+      var exch2 = document.createElement('div');
+      exch2.className='ent-action exch';
+      exch2.innerHTML =
+        '<div class="ai">🎯</div>'+
+        '<div class="an">兑换 10 分钟</div>'+
+        '<div class="ad">需要 '+Math.ceil(10/starPerMin())+' 颗星</div>';
+      exch2.onclick=function(){ entExchange(10); };
+      actions.appendChild(exch2);
+    }else{
+      var going = document.createElement('div');
+      going.className='ent-action timeron';
+      going.innerHTML='<div class="ai">▶️</div><div class="an">娱乐中…</div><div class="ad">倒计时走完会自动提醒</div>';
+      actions.appendChild(going);
+      var home = document.createElement('div');
+      home.className='ent-action';
+      home.innerHTML='<div class="ai">🏠</div><div class="an">回学习乐园</div><div class="ad">先学再玩更安心</div>';
+      home.onclick=function(){ showPage('home'); };
+      actions.appendChild(home);
+    }
+
+    // 游戏列表
+    var gb = document.getElementById('entGamesBox');
+    gb.innerHTML = '<h2 class="sec-title" style="margin-top:6px;">🌐 优选网页游戏 <small>点开就能玩</small></h2>';
+    var grid = document.createElement('div');
+    grid.className='ent-games';
+    ENT_GAMES.forEach(function(g){
+      var a=document.createElement('a');
+      a.className='ent-game';
+      a.dataset.url=g.url;
+      a.dataset.embed= g.embed?'1':'0';
+      a.dataset.name=g.n;
+      a.href='javascript:void(0)';  // 不直接跳转，交由点击处理
+      a.innerHTML='<div class="gi">'+g.e+'</div><div class="gn">'+esc(g.n)+'</div><div class="gd">'+esc(g.d)+(g.embed?'<br><b style="color:#2f6fa8;">页内播放</b>':'<br><b style="color:#c07a2f;">需另开窗口</b>')+'</div>';
+      // 若正在播这个游戏，标记
+      if(entCurrentUrl===g.url) a.classList.add('playing');
+      grid.appendChild(a);
+    });
+    gb.appendChild(grid);
+
+    // 倒计时状态
+    if(running){
+      document.getElementById('entCountdown').style.display='block';
+      startEntCountdown();
+    }else{
+      document.getElementById('entCountdown').style.display='none';
+      if(entTimerId){ clearInterval(entTimerId); entTimerId=null; }
+    }
+  }
+
+  /* 当前嵌入的游戏 */
+  var entCurrentUrl='';
+  function entOpenGame(g){
+    if(!data.ent.timerEnd || data.ent.timerEnd<=Date.now()){
+      toast('⏰ 没有娱乐时间啦，先用星星兑换吧！');
+      showPage('ent');
+      return;
+    }
+    if(!g.embed){
+      // 只能跳转：提示后新开
+      toast('此游戏需另开窗口，注意娱乐时间哦～');
+      window.open(g.url,'_blank');
+      return;
+    }
+    entCurrentUrl=g.url;
+    document.getElementById('ifName').textContent=g.n;
+    document.getElementById('entFrame').src=g.url;
+    document.getElementById('entIframeBox').classList.add('show');
+    renderEnt();
+  }
+  function entCloseIframe(){
+    entCurrentUrl='';
+    document.getElementById('entIframeBox').classList.remove('show');
+    document.getElementById('entFrame').src='about:blank';
+    renderEnt();
+  }
+
+  /* 游戏卡片点击：委托处理 */
+  document.getElementById('entGamesBox').addEventListener('click', function(e){
+    var a=e.target.closest('.ent-game'); if(!a) return;
+    var url=a.dataset.url;
+    var g=null;
+    ENT_GAMES.forEach(function(x){ if(x.url===url) g=x; });
+    if(!g) return;
+    entOpenGame(g);
+  });
+  document.getElementById('ifClose').addEventListener('click', entCloseIframe);
+
   /* ============ 确认框 ============ */
   var cfCb=null;
   function showConfirm(title, msg, cb){
     document.getElementById('cfTitle').textContent=title;
     document.getElementById('cfMsg').textContent=msg;
+    document.getElementById('confirmOverlay').classList.add('show');
+    cfCb=cb;
+  }
+  /* 富文本版（用于娱乐兑换等需要加粗的提示；msg 为受控内部HTML） */
+  function showConfirmHTML(title, msg, cb){
+    document.getElementById('cfTitle').textContent=title;
+    document.getElementById('cfMsg').innerHTML=msg;
     document.getElementById('confirmOverlay').classList.add('show');
     cfCb=cb;
   }
@@ -754,6 +1083,7 @@
   function refreshAll(){
     refreshStars(); refreshHeaderMin(); greet();
     renderTasks(); renderWeek(); renderRewards();
+    renderEnt();
     if(parentUnlocked) refreshParent();
   }
 
@@ -857,6 +1187,13 @@
   document.getElementById('soundSel').addEventListener('change', function(){
     data.sound = this.value==='1'?1:0; save();
     if(data.sound) playDone();
+  });
+
+  // 娱乐广场：提前结束计时
+  document.getElementById('cdStop').addEventListener('click', function(){
+    showConfirm('⏹ 提前结束','确定提前结束本次娱乐时间吗？', function(){
+      entStopTimer();
+    });
   });
 
   // 备份与重置
