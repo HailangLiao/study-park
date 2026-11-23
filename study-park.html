@@ -99,6 +99,12 @@
   .g-math .tag{ background:var(--green); }
   .g-eng .ico{ filter:drop-shadow(0 3px 4px rgba(111,183,255,.7)); }
   .g-eng .tag{ background:var(--blue); }
+  .g-2048 .ico{ filter:drop-shadow(0 3px 4px rgba(242,177,121,.7)); }
+  .g-2048 .tag{ background:#F2B179; }
+  .g-snake .ico{ filter:drop-shadow(0 3px 4px rgba(127,216,107,.7)); }
+  .g-snake .tag{ background:#4CAF50; }
+  /* 游玩模块底色区分 */
+  .play-section{ background:#FBF6EC; border:2px dashed #F2D8A7; border-radius:var(--radius); padding:16px; }
   /* ---------- 任务区 ---------- */
   .task{
     display:flex; align-items:center; gap:12px;
@@ -304,23 +310,8 @@
     </div>
 
     <section>
-      <h2 class="sec-title">🎮 去玩吧 <small>学完按左上角返回</small></h2>
+      <h2 class="sec-title">📚 学习 <small>知识闯关 · 每天进步一点点</small></h2>
       <div class="games">
-        <a class="game g-dungeon" data-warn="秘境迷宫" href="https://HailangLiao.github.io/study-park/games/dungeon-quest.html" target="_blank" rel="noopener">
-          <span class="ico">🗺️</span>
-          <span class="name">秘境迷宫</span>
-          <span class="tag">探险闯关·不淘汰</span>
-        </a>
-        <a class="game g-battle" data-warn="怪兽大作战" href="https://HailangLiao.github.io/study-park/games/monster-battle.html" target="_blank" rel="noopener">
-          <span class="ico">⚔️</span>
-          <span class="name">怪兽大作战</span>
-          <span class="tag">答题打怪·可复活</span>
-        </a>
-        <a class="game g-fly" data-warn="星际飞行" href="https://HailangLiao.github.io/study-park/games/monster-battle.html?mode=fly" target="_blank" rel="noopener">
-          <span class="ico">✈️</span>
-          <span class="name">星际飞行</span>
-          <span class="tag">打飞机·答题复活</span>
-        </a>
         <a class="game g-cc" data-warn="聪聪学堂" href="https://d3nmsqi4n72idj.cloudfront.net/" target="_blank" rel="noopener">
           <span class="ico">📚</span>
           <span class="name">聪聪学堂</span>
@@ -335,6 +326,37 @@
           <span class="ico">🐉</span>
           <span class="name">英语魔法</span>
           <span class="tag">养 Buddy 闯关</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="play-section">
+      <h2 class="sec-title">🎮 游玩 <small>学完就能玩 · 持续上新</small></h2>
+      <div class="games">
+        <a class="game g-dungeon" data-warn="秘境迷宫" href="https://HailangLiao.github.io/study-park/games/dungeon-quest.html" target="_blank" rel="noopener">
+          <span class="ico">🗺️</span>
+          <span class="name">秘境迷宫</span>
+          <span class="tag">探险闯关</span>
+        </a>
+        <a class="game g-battle" data-warn="怪兽大作战" href="https://HailangLiao.github.io/study-park/games/monster-battle.html" target="_blank" rel="noopener">
+          <span class="ico">⚔️</span>
+          <span class="name">怪兽大作战</span>
+          <span class="tag">答题打怪</span>
+        </a>
+        <a class="game g-fly" data-warn="星际飞行" href="https://HailangLiao.github.io/study-park/games/monster-battle.html?mode=fly" target="_blank" rel="noopener">
+          <span class="ico">✈️</span>
+          <span class="name">星际飞行</span>
+          <span class="tag">打飞机</span>
+        </a>
+        <a class="game g-2048" data-warn="经典2048" href="https://HailangLiao.github.io/study-park/games/puzzle-2048.html" target="_blank" rel="noopener">
+          <span class="ico">🔢</span>
+          <span class="name">经典 2048</span>
+          <span class="tag">数字合并</span>
+        </a>
+        <a class="game g-snake" data-warn="贪吃蛇" href="https://HailangLiao.github.io/study-park/games/snake.html" target="_blank" rel="noopener">
+          <span class="ico">🐍</span>
+          <span class="name">贪吃蛇</span>
+          <span class="tag">经典街机</span>
         </a>
       </div>
     </section>
@@ -828,18 +850,16 @@
   }
 
   /* ============ 娱乐广场 ============ */
-  /* 外部网页游戏库（全部免注册、免费；家长可自行增删）
-     embed: 可嵌入页内（到时自动关闭）/ false: 只能跳转新页 */
+  /* 外部网页游戏库（全部免注册、免费；仅收录可页内嵌入的，确保"星星兑换时长"机制生效）
+     embed:true = 可嵌入页内，到点自动关闭（受时间奖励机制控制）
+     注意：开新窗口的站点（Poki/MathPlayground等被CSP禁止嵌入）无法受控，不收录！ */
   var ENT_GAMES = [
-    { e:'🧩', n:'Poki 益智游戏', d:'250+ 款拼图/数独/2048/找不同，免登录直玩', url:'https://poki.com/zh/%E7%9B%8A%E6%99%BA', embed:true },
-    { e:'2️⃣0️⃣', n:'经典 2048', d:'数字消除小游戏，训练专注力', url:'https://play2048.co/', embed:true },
-    { e:'✍️', n:'XieXie 中文游戏', d:'声调/笔画/认字中文小游戏，免登录（另开窗口）', url:'https://xiexie.app/play', embed:false },
+    { e:'🔢', n:'2048 数字合并', d:'自己域名托管 · 页内可限时', url:'https://HailangLiao.github.io/study-park/games/puzzle-2048.html', embed:true },
+    { e:'🐍', n:'贪吃蛇', d:'自己域名托管 · 页内可限时', url:'https://HailangLiao.github.io/study-park/games/snake.html', embed:true },
     { e:'🧩', n:'17Yoo 益智游戏', d:'拼图/逻辑/识字/英语儿童游戏合集', url:'https://17yoo.cn', embed:true },
     { e:'🎮', n:'RoomRecess 游戏屋', d:'160+ 款小学数学/阅读/拼写小游戏', url:'https://www.roomrecess.com/', embed:true },
     { e:'⚔️', n:'口算王者', d:'口算闯关游戏，答对英雄出招打怪', url:'https://kousuanwang.cn', embed:true },
-    { e:'🌌', n:'Funbrain', d:'数学/阅读/科学/拼写游戏与电子书', url:'https://www.funbrain.com/', embed:true },
-    { e:'🧮', n:'Math Playground', d:'300+ 数学游戏（此站需另开窗口）', url:'https://www.mathplayground.com/math-games.html', embed:false },
-    { e:'📚', n:'聪聪学堂(知识版)', d:'语文数学英语单元练习，放松也合适（需另开）', url:'https://d3nmsqi4n72idj.cloudfront.net/', embed:false }
+    { e:'🌌', n:'Funbrain', d:'数学/阅读/科学/拼写游戏与电子书', url:'https://www.funbrain.com/', embed:true }
   ];
 
   /* 今日已用娱乐分钟 */
@@ -999,9 +1019,8 @@
       return;
     }
     if(!g.embed){
-      // 只能跳转：提示后新开
-      toast('此游戏需另开窗口，注意娱乐时间哦～');
-      window.open(g.url,'_blank');
+      // 重要：不开放新窗口！开新窗口会脱离星星兑换的时间管控（浏览器无法强制关闭新标签页）
+      toast('⚠️ 此游戏无法在页内播放，为守住娱乐时限已停用。玩页内游戏吧！');
       return;
     }
     entCurrentUrl=g.url;
